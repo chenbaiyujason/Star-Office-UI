@@ -507,8 +507,9 @@
             body {
                 padding: 0;
                 gap: 0;
-                overflow-x: hidden;
+                overflow-x: auto;
                 overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
                 align-items: stretch;
             }
 
@@ -521,8 +522,14 @@
                 border-radius: 0;
                 aspect-ratio: auto;
                 flex: 0 0 auto;
-                touch-action: pan-y; /* 保留页面纵向滚动手势 */
+                touch-action: auto; /* 允许页面在手机上自然滑动 */
                 overflow: hidden;
+            }
+
+            #main-stage {
+                width: 1280px;
+                min-width: 1280px;
+                margin-left: 0 !important;
             }
 
             #bottom-panels {
@@ -537,7 +544,7 @@
             }
 
             body.drawer-open #main-stage {
-                margin-left: max(0px, calc(100vw - min(92vw, 420px) - 1280px));
+                margin-left: 0 !important;
             }
 
             #memo-panel,
@@ -3248,7 +3255,8 @@ function toggleBrokerPanel() {
             const canvasEl = game.canvas;
             let touchPan = null; // {x,y,sx,sy,lock:'x'|'y'|null}
             if (canvasEl) {
-                canvasEl.style.touchAction = 'pan-y';
+                // 手机端允许页面自然滚动，避免“不能滑动”
+                canvasEl.style.touchAction = 'auto';
 
                 canvasEl.addEventListener('touchstart', (e) => {
                     if (!panEnabled || e.touches.length !== 1) return;
