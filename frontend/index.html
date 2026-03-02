@@ -29,7 +29,7 @@
             display: flex;
             gap: 20px;
             width: 1280px;
-            max-width: 95vw;
+            max-width: none;
         }
         #game-container {
             position: relative;
@@ -37,11 +37,10 @@
             image-rendering: pixelated;
             width: 1280px;
             height: 720px;
-            max-width: 95vw;
-            /* 手机上用“可见高度”限制，避免被底部面板挤压导致裁切 */
-            max-height: 70vh;
-            /* 关键：强制容器保持 16:9，避免 canvas 在不同布局下被拉伸变形 */
-            aspect-ratio: 16 / 9;
+            max-width: none;
+            max-height: none;
+            aspect-ratio: auto;
+            overflow: hidden;
         }
         #game-container canvas {
             width: 100% !important;
@@ -105,7 +104,7 @@
             background: #2c2f3a;
             padding: 10px 10px 12px;
             border-radius: 8px;
-            border: 2px solid #e94560;
+            border: 2px solid #64477d;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             width: 380px;
             height: 300px;
@@ -339,7 +338,7 @@
             background: #2c2f3a;
             padding: 12px;
             border-radius: 8px;
-            border: 2px solid #e94560;
+            border: 2px solid #64477d;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
@@ -415,7 +414,7 @@
             background-image: url('/static/memo-bg.webp');
             background-size: cover;
             background-position: center;
-            border: 3px solid #e94560;
+            border: 3px solid #64477d;
             border-radius: 8px;
             padding: 14px 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
@@ -495,10 +494,10 @@
             }
 
             #game-container {
-                width: 100vw;
-                height: 66.666vh; /* 办公室占 2/3 屏幕高度 */
-                max-width: 100vw;
-                max-height: 66.666vh;
+                width: 1280px;
+                height: 720px;
+                max-width: none;
+                max-height: none;
                 border-width: 0;
                 border-radius: 0;
                 aspect-ratio: auto;
@@ -508,8 +507,8 @@
             }
 
             #bottom-panels {
-                width: 100vw;
-                max-width: 100vw;
+                width: 1280px;
+                max-width: none;
                 min-height: 33.334vh; /* 余下约 1/3 可见区 */
                 padding: 10px 10px 16px;
                 display: flex;
