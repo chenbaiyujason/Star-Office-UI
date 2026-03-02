@@ -407,7 +407,8 @@ def _animated_to_spritesheet(
                 raise RuntimeError("动图无有效帧")
 
         if backend == "magick":
-            quality_flag = "-quality 90" if ext == ".webp" else ""
+            # 像素风动图转精灵表默认无损，避免颜色/边缘被压缩糊掉
+            quality_flag = "-define webp:lossless=true -define webp:method=6 -quality 100" if ext == ".webp" else ""
             if preserve_original:
                 cmd = (
                     f"magick '{td}/f_*.png' +append {quality_flag} '{out_path}'"
@@ -424,7 +425,7 @@ def _animated_to_spritesheet(
                 raise RuntimeError("ImageMagick 拼图失败")
             return out_path, frames, 1, frames, out_fw, out_fh
 
-        ffmpeg_quality = "-q:v 4" if ext == ".webp" else ""
+        ffmpeg_quality = "-lossless 1 -compression_level 6 -q:v 100" if ext == ".webp" else ""
         if preserve_original:
             vf = f"tile={frames}x1"
         else:
