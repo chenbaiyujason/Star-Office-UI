@@ -646,6 +646,12 @@
                         <button id="asset-choose-btn" onclick="openInlineAssetUploader()">选择图片</button>
                         <button id="asset-confirm-btn" onclick="commitAssetUpdate()" disabled style="opacity:.55;">确认上传替换</button>
                     </div>
+                    <div class="asset-toolbar" style="gap:6px; flex-wrap:wrap; margin-bottom:6px;">
+                        <input id="asset-frame-w" type="number" min="1" step="1" placeholder="单帧宽" style="width:86px;" />
+                        <input id="asset-frame-h" type="number" min="1" step="1" placeholder="单帧高" style="width:86px;" />
+                        <input id="asset-cols" type="number" min="1" step="1" placeholder="列" style="width:64px;" />
+                        <input id="asset-rows" type="number" min="1" step="1" placeholder="行" style="width:64px;" />
+                    </div>
                     <div id="asset-upload-result" class="asset-sub"></div>
                 </div>
             </div>
@@ -1120,10 +1126,35 @@
             btn.style.opacity = can ? '1' : '.55';
         }
 
+        function fillAssetUploadParamsFromSelection(path) {
+            const wInput = document.getElementById('asset-frame-w');
+            const hInput = document.getElementById('asset-frame-h');
+            const cInput = document.getElementById('asset-cols');
+            const rInput = document.getElementById('asset-rows');
+            if (!wInput || !hInput || !cInput || !rInput) return;
+
+            // 优先用当前场景实际帧尺寸
+            const liveFrame = getLiveFrameSizeByAssetPath(path);
+            if (liveFrame) {
+                wInput.value = String(Math.round(liveFrame.w));
+                hInput.value = String(Math.round(liveFrame.h));
+            } else if (selectedAssetInfo?.width && selectedAssetInfo?.height) {
+                // 兜底：若是精灵表，默认猜 4x4
+                const sw = Number(selectedAssetInfo.width);
+                const sh = Number(selectedAssetInfo.height);
+                wInput.value = String(Math.max(1, Math.round(sw / 4)));
+                hInput.value = String(Math.max(1, Math.round(sh / 4)));
+            }
+
+            cInput.value = '';
+            rInput.value = '';
+        }
+
         function selectAssetInDrawer(path) {
             selectedAssetInfo = assetListData.find(x => x.path === path) || null;
             updateActiveAssetItem(path);
             const ok = applyScenePreview(path, null);
+            fillAssetUploadParamsFromSelection(path);
             const out = document.getElementById('asset-upload-result');
             if (out) out.textContent = ok ? `已选中：${path}` : `已选中：${path}（当前场景未定位到对象）`;
             updateAssetConfirmButtonState();
@@ -1383,34 +1414,55 @@
             const isAnimInput = nameLower.endsWith('.gif') || nameLower.endsWith('.webp');
             const isSheetTarget = !!inferSpritesheetFrameMetaByPath(path);
 
+            // 用户可手填参数
+            const inputFw = Number(document.getElementById('asset-frame-w')?.value || 0);
+            const inputFh = Number(document.getElementById('asset-frame-h')?.value || 0);
+            const inputCols = Number(document.getElementById('asset-cols')?.value || 0);
+            const inputRows = Number(document.getElementById('asset-rows')?.value || 0);
+
             // 规则：
-            // 1) 上传动图到精灵表目标 => 自动转精灵表
-            // 2) 上传静态图到精灵表目标 => 也按等网格切帧自动转精灵表（避免整张图被当单帧）
+            // 1) 上传到精灵表目标 => 自动转精灵表
+            // 2) 参数优先级：用户输入 > 当前场景帧规格 > 后端探测
             if (isSheetTarget) {
                 fd.append('auto_spritesheet', '1');
 
-                // flowers 明确固定 128x128；其它资源沿用当前场景帧规格
-                const isFlowers = path.toLowerCase().includes('flowers-spritesheet');
-                if (isFlowers) {
-                    fd.append('frame_w', '128');
-                    fd.append('frame_h', '128');
-                    fd.append('preserve_original', '0');
+                let fw = 0, fh = 0;
+                if (inputFw > 0 && inputFh > 0) {
+                    fw = inputFw;
+                    fh = inputFh;
                 } else {
                     const liveFrame = getLiveFrameSizeByAssetPath(path);
                     if (liveFrame) {
-                        fd.append('frame_w', String(liveFrame.w));
-                        fd.append('frame_h', String(liveFrame.h));
-                        fd.append('preserve_original', '0');
-                    } else if (isAnimInput) {
-                        // 无法探测时，动图让后端按输入帧探测
+                        fw = Math.round(liveFrame.w);
+                        fh = Math.round(liveFrame.h);
+                    }
+                }
+
+                // 行列可反推单帧大小（静态图尤其有用）
+                if ((inputCols > 0 || inputRows > 0) && selectedAssetInfo?.width && selectedAssetInfo?.height) {
+                    const sw = Number(selectedAssetInfo.width);
+                    const sh = Number(selectedAssetInfo.height);
+                    if (inputCols > 0) fw = Math.max(1, Math.floor(sw / inputCols));
+                    if (inputRows > 0) fh = Math.max(1, Math.floor(sh / inputRows));
+                }
+
+                if (fw > 0 && fh > 0) {
+                    fd.append('frame_w', String(fw));
+                    fd.append('frame_h', String(fh));
+                    fd.append('preserve_original', '0');
+                } else {
+                    // 没给出帧规格：动图可保留原始帧；静态图兜底
+                    if (isAnimInput) {
                         fd.append('preserve_original', '1');
                     } else {
-                        // 无法探测时的静态图兜底
                         fd.append('frame_w', '64');
                         fd.append('frame_h', '64');
                         fd.append('preserve_original', '0');
                     }
                 }
+
+                if (inputCols > 0) fd.append('cols', String(inputCols));
+                if (inputRows > 0) fd.append('rows', String(inputRows));
                 fd.append('pixel_art', '1');
             }
 
