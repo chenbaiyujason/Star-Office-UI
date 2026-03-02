@@ -1117,29 +1117,11 @@
         }
 
         function getSpritesheetFrameMeta(item) {
-            const path = (item && item.path) ? item.path : '';
-            const stem = (path.split('/').pop() || '').replace(/\.[^.]+$/, '');
-            const frameMap = {
-                'star-idle-spritesheet': { w: 256, h: 256 },
-                'star-researching-spritesheet': { w: 128, h: 105 },
-                'sofa-busy-spritesheet': { w: 256, h: 256 },
-                'plants-spritesheet': { w: 160, h: 160 },
-                'posters-spritesheet': { w: 160, h: 160 },
-                'coffee-machine-spritesheet': { w: 230, h: 230 },
-                'serverroom-spritesheet': { w: 180, h: 251 },
-                'error-bug-spritesheet-grid': { w: 180, h: 180 },
-                'cats-spritesheet': { w: 160, h: 160 },
-                'star-working-spritesheet-grid': { w: 230, h: 144 },
-                'sync-animation-spritesheet-grid': { w: 256, h: 256 },
-                'flowers-spritesheet': { w: 65, h: 65 },
-                'guest_anim_1': { w: 32, h: 32 },
-                'guest_anim_2': { w: 32, h: 32 },
-                'guest_anim_3': { w: 32, h: 32 },
-                'guest_anim_4': { w: 32, h: 32 },
-                'guest_anim_5': { w: 32, h: 32 },
-                'guest_anim_6': { w: 32, h: 32 }
-            };
-            return frameMap[stem] || null;
+            // 不再写死每个资产：优先使用列表里的 width/height（来自后端探测）
+            if (item && Number(item.width) > 0 && Number(item.height) > 0) {
+                return { w: Number(item.width), h: Number(item.height) };
+            }
+            return null;
         }
 
         function tryAnimateAssetThumb(item) {

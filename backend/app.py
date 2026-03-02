@@ -328,6 +328,34 @@ def _ensure_magick_or_ffmpeg_available():
     return None
 
 
+def _probe_animated_frame_size(upload_path: str):
+    """Return (w,h) from first frame if possible."""
+    if Image is not None:
+        try:
+            with Image.open(upload_path) as im:
+                w, h = im.size
+                return int(w), int(h)
+        except Exception:
+            pass
+    # ffprobe fallback
+    if shutil.which("ffprobe"):
+        try:
+            cmd = [
+                "ffprobe", "-v", "error",
+                "-select_streams", "v:0",
+                "-show_entries", "stream=width,height",
+                "-of", "csv=p=0:s=x",
+                upload_path,
+            ]
+            out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, timeout=5).decode().strip()
+            if "x" in out:
+                w, h = out.split("x", 1)
+                return int(w), int(h)
+        except Exception:
+            pass
+    return None, None
+
+
 def _animated_to_spritesheet(
     upload_path: str,
     frame_w: int,
@@ -1116,9 +1144,17 @@ def assets_upload():
                 src_path = tf.name
                 f.save(src_path)
             try:
-                frame_w = int(request.form.get("frame_w") or 64)
-                frame_h = int(request.form.get("frame_h") or 64)
-                preserve_original = (request.form.get("preserve_original") or "1").strip() == "1"
+                in_w, in_h = _probe_animated_frame_size(src_path)
+                frame_w = int(request.form.get("frame_w") or (in_w or 64))
+                frame_h = int(request.form.get("frame_h") or (in_h or 64))
+
+                # 默认：优先保留输入帧尺寸；若前端传了强制值则按前端。
+                preserve_original_val = request.form.get("preserve_original")
+                if preserve_original_val is None:
+                    preserve_original = True
+                else:
+                    preserve_original = preserve_original_val.strip() == "1"
+
                 pixel_art = (request.form.get("pixel_art") or "1").strip() == "1"
                 sheet_path, cols, rows, frames, out_fw, out_fh = _animated_to_spritesheet(
                     src_path,
