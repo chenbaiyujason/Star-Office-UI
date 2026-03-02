@@ -1389,20 +1389,27 @@
             if (isSheetTarget) {
                 fd.append('auto_spritesheet', '1');
 
-                // 关键：沿用当前场景已生效的帧规格，避免用户替换后尺寸跑偏
-                const liveFrame = getLiveFrameSizeByAssetPath(path);
-                if (liveFrame) {
-                    fd.append('frame_w', String(liveFrame.w));
-                    fd.append('frame_h', String(liveFrame.h));
+                // flowers 明确固定 128x128；其它资源沿用当前场景帧规格
+                const isFlowers = path.toLowerCase().includes('flowers-spritesheet');
+                if (isFlowers) {
+                    fd.append('frame_w', '128');
+                    fd.append('frame_h', '128');
                     fd.append('preserve_original', '0');
-                } else if (isAnimInput) {
-                    // 无法探测时，动图让后端按输入帧探测
-                    fd.append('preserve_original', '1');
                 } else {
-                    // 无法探测时的静态图兜底
-                    fd.append('frame_w', '64');
-                    fd.append('frame_h', '64');
-                    fd.append('preserve_original', '0');
+                    const liveFrame = getLiveFrameSizeByAssetPath(path);
+                    if (liveFrame) {
+                        fd.append('frame_w', String(liveFrame.w));
+                        fd.append('frame_h', String(liveFrame.h));
+                        fd.append('preserve_original', '0');
+                    } else if (isAnimInput) {
+                        // 无法探测时，动图让后端按输入帧探测
+                        fd.append('preserve_original', '1');
+                    } else {
+                        // 无法探测时的静态图兜底
+                        fd.append('frame_w', '64');
+                        fd.append('frame_h', '64');
+                        fd.append('preserve_original', '0');
+                    }
                 }
                 fd.append('pixel_art', '1');
             }
@@ -2147,11 +2154,11 @@
                     if (flowerItem && Number(flowerItem.width) > 0 && Number(flowerItem.height) > 0) {
                         const w = Number(flowerItem.width);
                         const h = Number(flowerItem.height);
-                        // 默认按 4x4 逻辑（历史行为）动态推导单帧尺寸
-                        FLOWERS_FRAME_COLS = 4;
-                        FLOWERS_FRAME_ROWS = 4;
-                        FLOWERS_FRAME_W = Math.max(1, Math.floor(w / FLOWERS_FRAME_COLS));
-                        FLOWERS_FRAME_H = Math.max(1, Math.floor(h / FLOWERS_FRAME_ROWS));
+                        // 修复：花朵素材单帧固定 128x128（用户明确要求）
+                        FLOWERS_FRAME_W = 128;
+                        FLOWERS_FRAME_H = 128;
+                        FLOWERS_FRAME_COLS = Math.max(1, Math.floor(w / FLOWERS_FRAME_W));
+                        FLOWERS_FRAME_ROWS = Math.max(1, Math.floor(h / FLOWERS_FRAME_H));
                     }
                 }
             } catch (e) {
