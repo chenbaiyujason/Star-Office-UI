@@ -653,6 +653,11 @@
                         <input id="asset-cols" type="number" min="1" step="1" placeholder="列" style="width:64px;" />
                         <input id="asset-rows" type="number" min="1" step="1" placeholder="行" style="width:64px;" />
                     </div>
+                    <div class="asset-toolbar" style="gap:6px; flex-wrap:wrap; margin-bottom:6px;">
+                        <input id="asset-pos-x" type="number" step="1" placeholder="X" style="width:86px;" />
+                        <input id="asset-pos-y" type="number" step="1" placeholder="Y" style="width:86px;" />
+                        <button id="asset-pos-apply-btn" onclick="applyAssetPosition()">确认坐标</button>
+                    </div>
                     <div id="asset-upload-result" class="asset-sub"></div>
                 </div>
             </div>
@@ -977,6 +982,10 @@
         let sceneAssetItems = [];
         let selectedAssetInfo = null;
         let assetThumbTimers = [];
+        let assetPositionOverrides = (() => {
+            try { return JSON.parse(localStorage.getItem('assetPositionOverrides') || '{}') || {}; }
+            catch (e) { return {}; }
+        })();
         let isMoving = false;
         let waypoints = []; // list of (x,y) to walk through in order
         let lastWanderAt = 0;
@@ -1194,6 +1203,60 @@
             return null;
         }
 
+        function saveAssetPositionOverrides() {
+            try { localStorage.setItem('assetPositionOverrides', JSON.stringify(assetPositionOverrides || {})); } catch (e) {}
+        }
+
+        function applyAssetPosition() {
+            const path = selectedAssetInfo?.path || '';
+            const out = document.getElementById('asset-upload-result');
+            if (!path) {
+                if (out) out.textContent = '请先选中一个资产';
+                return;
+            }
+            const sprite = mapAssetPathToSprite(path);
+            if (!sprite) {
+                if (out) out.textContent = '当前场景未找到该资产对象';
+                return;
+            }
+            const x = Number(document.getElementById('asset-pos-x')?.value || NaN);
+            const y = Number(document.getElementById('asset-pos-y')?.value || NaN);
+            if (!Number.isFinite(x) || !Number.isFinite(y)) {
+                if (out) out.textContent = '请输入有效的 X/Y 坐标';
+                return;
+            }
+
+            sprite.x = x;
+            sprite.y = y;
+
+            const texKey = sprite?.texture?.key;
+            if (texKey) {
+                assetPositionOverrides[texKey] = { x, y };
+                saveAssetPositionOverrides();
+            }
+
+            drawSelectionBoxOnScene(path);
+            highlightSpriteByAssetPath(path);
+            if (out) out.textContent = `✅ 已应用坐标：(${Math.round(x)}, ${Math.round(y)})`;
+        }
+
+        function applySavedPositionOverrides() {
+            try {
+                const children = getSceneChildren();
+                for (const ch of children) {
+                    const key = ch?.texture?.key;
+                    if (!key) continue;
+                    const ov = assetPositionOverrides[key];
+                    if (!ov) continue;
+                    const x = Number(ov.x), y = Number(ov.y);
+                    if (Number.isFinite(x) && Number.isFinite(y)) {
+                        ch.x = x;
+                        ch.y = y;
+                    }
+                }
+            } catch (e) {}
+        }
+
         function applyScenePreview(path) {
             const ok = highlightSpriteByAssetPath(path);
             const ok2 = drawSelectionBoxOnScene(path);
@@ -1240,11 +1303,26 @@
             rInput.value = '';
         }
 
+        function refreshAssetPositionInputs(path) {
+            const xInput = document.getElementById('asset-pos-x');
+            const yInput = document.getElementById('asset-pos-y');
+            if (!xInput || !yInput) return;
+            const sprite = mapAssetPathToSprite(path);
+            if (!sprite) {
+                xInput.value = '';
+                yInput.value = '';
+                return;
+            }
+            xInput.value = String(Math.round(Number(sprite.x || 0)));
+            yInput.value = String(Math.round(Number(sprite.y || 0)));
+        }
+
         function selectAssetInDrawer(path) {
             selectedAssetInfo = assetListData.find(x => x.path === path) || null;
             updateActiveAssetItem(path);
             const ok = applyScenePreview(path, null);
             fillAssetUploadParamsFromSelection(path);
+            refreshAssetPositionInputs(path);
             const out = document.getElementById('asset-upload-result');
             if (out) out.textContent = ok ? `已选中：${path}` : `已选中：${path}（当前场景未定位到对象）`;
             updateAssetConfirmButtonState();
@@ -1350,7 +1428,7 @@
                     <canvas id="${thumbId}" class="asset-thumb" width="56" height="56"></canvas>
                     <div class="asset-meta">
                         <div class="asset-path">${it.path}</div>
-                        <div class="asset-sub">${it.ext || ''} ｜ ${reso} ｜ ${formatSizeHuman(it.size || 0)}</div>
+                        <div class="asset-sub">${reso}</div>
                     </div>
                     <div>
                         <div class="asset-inline-plus" title="上传替换" onclick="event.stopPropagation(); openInlineAssetUploader()"><span></span></div>
@@ -2310,6 +2388,7 @@
 
             // 启动 Phaser 游戏
             new Phaser.Game(config);
+            setTimeout(() => applySavedPositionOverrides(), 600);
         }
 
         function preload() {
