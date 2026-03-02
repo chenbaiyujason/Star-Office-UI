@@ -35,6 +35,7 @@ ROOM_REFERENCE_IMAGE = os.path.join(ROOT_DIR, "assets", "room-reference.png")
 BG_HISTORY_DIR = os.path.join(ROOT_DIR, "assets", "bg-history")
 ASSET_POSITIONS_FILE = os.path.join(ROOT_DIR, "asset-positions.json")
 ASSET_DEFAULTS_FILE = os.path.join(ROOT_DIR, "asset-defaults.json")
+RUNTIME_CONFIG_FILE = os.path.join(ROOT_DIR, "runtime-config.json")
 
 
 def get_yesterday_date_str():
@@ -350,6 +351,29 @@ def save_asset_defaults(data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+def load_runtime_config():
+    base = {
+        "gemini_api_key": os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or "",
+        "gemini_model": os.getenv("GEMINI_MODEL") or "nanobanana-pro"
+    }
+    if os.path.exists(RUNTIME_CONFIG_FILE):
+        try:
+            with open(RUNTIME_CONFIG_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                    base.update({k: data.get(k, base.get(k)) for k in ["gemini_api_key", "gemini_model"]})
+        except Exception:
+            pass
+    return base
+
+
+def save_runtime_config(data):
+    cfg = load_runtime_config()
+    cfg.update(data or {})
+    with open(RUNTIME_CONFIG_FILE, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, ensure_ascii=False, indent=2)
+
+
 def load_join_keys():
     if os.path.exists(JOIN_KEYS_FILE):
         try:
@@ -526,6 +550,10 @@ def normalize_agent_state(s):
 
 def _generate_rpg_background_to_webp(out_webp_path: str, width: int = 1280, height: int = 720, custom_prompt: str = ""):
     """Generate RPG-style room background and save as 1280x720 webp."""
+    runtime_cfg = load_runtime_config()
+    api_key = (runtime_cfg.get("gemini_api_key") or "").strip()
+    if not api_key:
+        raise RuntimeError("MISSING_API_KEY")
     themes = [
         "8-bit dungeon guild room",
         "8-bit stardew-valley inspired cozy farm tavern",
@@ -567,7 +595,15 @@ def _generate_rpg_background_to_webp(out_webp_path: str, width: int = 1280, heig
     if os.path.exists(ROOM_REFERENCE_IMAGE):
         cmd.extend(["--reference-image", ROOM_REFERENCE_IMAGE])
 
-    proc = subprocess.run(cmd, capture_output=True, text=True, env=os.environ.copy(), timeout=240)
+    env = os.environ.copy()
+    # 运行时配置优先
+    env["GEMINI_API_KEY"] = api_key
+    env.setdefault("GOOGLE_API_KEY", api_key)
+    model = (runtime_cfg.get("gemini_model") or "").strip()
+    if model:
+        env["GEMINI_MODEL"] = model
+
+    proc = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=240)
     if proc.returncode != 0:
         raise RuntimeError(f"生图失败: {proc.stderr or proc.stdout}")
 
@@ -1131,7 +1167,10 @@ def assets_generate_rpg_background():
             "msg": "已生成并替换 RPG 房间底图（已自动归档）",
         })
     except Exception as e:
-        return jsonify({"ok": False, "msg": str(e)}), 500
+        msg = str(e)
+        if msg == "MISSING_API_KEY":
+            return jsonify({"ok": False, "code": "MISSING_API_KEY", "msg": "Missing GEMINI_API_KEY or GOOGLE_API_KEY"}), 400
+        return jsonify({"ok": False, "msg": msg}), 500
 
 
 @app.route("/assets/restore-reference-background", methods=["POST"])
@@ -1230,6 +1269,37 @@ def assets_defaults_set():
         all_defaults[key] = {"x": x, "y": y, "scale": scale, "updated_at": datetime.now().isoformat()}
         save_asset_defaults(all_defaults)
         return jsonify({"ok": True, "key": key, "x": x, "y": y, "scale": scale})
+    except Exception as e:
+        return jsonify({"ok": False, "msg": str(e)}), 500
+
+
+@app.route("/config/gemini", methods=["GET"])
+def gemini_config_get():
+    try:
+        cfg = load_runtime_config()
+        key = (cfg.get("gemini_api_key") or "").strip()
+        masked = ("*" * max(0, len(key) - 4)) + key[-4:] if key else ""
+        return jsonify({
+            "ok": True,
+            "has_api_key": bool(key),
+            "api_key_masked": masked,
+            "gemini_model": cfg.get("gemini_model") or "nanobanana-pro",
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "msg": str(e)}), 500
+
+
+@app.route("/config/gemini", methods=["POST"])
+def gemini_config_set():
+    try:
+        data = request.get_json(silent=True) or {}
+        api_key = (data.get("api_key") or "").strip()
+        model = (data.get("model") or "").strip() or "nanobanana-pro"
+        payload = {"gemini_model": model}
+        if api_key:
+            payload["gemini_api_key"] = api_key
+        save_runtime_config(payload)
+        return jsonify({"ok": True, "msg": "Gemini 配置已保存"})
     except Exception as e:
         return jsonify({"ok": False, "msg": str(e)}), 500
 
