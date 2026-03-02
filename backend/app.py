@@ -158,6 +158,7 @@ join_lock = threading.Lock()
 
 # Generate a version timestamp once at server startup for cache busting
 VERSION_TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
+ASSET_DRAWER_PASS_DEFAULT = os.getenv("ASSET_DRAWER_PASS", "1234")
 
 
 @app.after_request
@@ -245,6 +246,7 @@ def index():
     with open(os.path.join(FRONTEND_DIR, "index.html"), "r", encoding="utf-8") as f:
         html = f.read()
     html = html.replace("{{VERSION_TIMESTAMP}}", VERSION_TIMESTAMP)
+    html = html.replace("{{ASSET_DRAWER_PASS}}", ASSET_DRAWER_PASS_DEFAULT)
     resp = make_response(html)
     resp.headers["Content-Type"] = "text/html; charset=utf-8"
     return resp
