@@ -704,7 +704,7 @@
     <button id="lang-toggle-btn" onclick="toggleLanguage()" style="position:fixed; top:calc(env(safe-area-inset-top, 0px) + 52px); left:12px; z-index:999999; padding:8px 10px; font-family:ArkPixel,monospace; font-size:13px; cursor:pointer; border:2px solid #333; border-radius:5px; background:#333; color:#fff;">
         EN
     </button>
-    <button id="lang-toggle-jp-btn" onclick="toggleJapanese()" style="position:fixed; top:calc(env(safe-area-inset-top, 0px) + 92px); left:12px; z-index:999999; padding:8px 10px; font-family:ArkPixel,monospace; font-size:13px; cursor:pointer; border:2px solid #333; border-radius:5px; background:#333; color:#fff;">
+    <button id="lang-toggle-jp-btn" onclick="toggleJapanese()" style="position:fixed; top:calc(env(safe-area-inset-top, 0px) + 52px); left:86px; z-index:999999; padding:8px 10px; font-family:ArkPixel,monospace; font-size:13px; cursor:pointer; border:2px solid #333; border-radius:5px; background:#333; color:#fff;">
         日本語
     </button>
 
@@ -1381,6 +1381,29 @@
             } catch (e) {}
         }
 
+        function clearAssetSelectionUI() {
+            const hl = document.getElementById('asset-highlight');
+            if (hl) hl.style.display = 'none';
+            if (selectionBoxGraphics) selectionBoxGraphics.setVisible(false);
+        }
+
+        function clearAssetSelection(resetInputs = true) {
+            selectedAssetInfo = null;
+            updateActiveAssetItem('');
+            clearAssetSelectionUI();
+            const out = document.getElementById('asset-upload-result');
+            if (out) out.textContent = '';
+            if (resetInputs) {
+                const xInput = document.getElementById('asset-pos-x');
+                const yInput = document.getElementById('asset-pos-y');
+                const sInput = document.getElementById('asset-scale');
+                if (xInput) xInput.value = '';
+                if (yInput) yInput.value = '';
+                if (sInput) sInput.value = '100';
+            }
+            updateAssetConfirmButtonState();
+        }
+
         function applyScenePreview(path) {
             const ok = highlightSpriteByAssetPath(path);
             const ok2 = drawSelectionBoxOnScene(path);
@@ -1459,6 +1482,11 @@
         }
 
         function selectAssetInDrawer(path) {
+            // 二次点击同一资产 = 取消选择
+            if (selectedAssetInfo && selectedAssetInfo.path === path) {
+                clearAssetSelection(true);
+                return;
+            }
             selectedAssetInfo = assetListData.find(x => x.path === path) || null;
             updateActiveAssetItem(path);
             const ok = applyScenePreview(path, null);
@@ -1650,6 +1678,21 @@
                 updateAssetConfirmButtonState();
             };
             updateAssetConfirmButtonState();
+        }
+
+        let assetDrawerBackgroundBinded = false;
+        function bindAssetDrawerBackgroundDeselect() {
+            if (assetDrawerBackgroundBinded) return;
+            assetDrawerBackgroundBinded = true;
+            const body = document.getElementById('asset-drawer-body');
+            if (!body) return;
+            body.addEventListener('click', (e) => {
+                if (!assetDrawerOpen || !assetDrawerAuthed) return;
+                // 点击空白处才取消选择；点击控件/资产项不取消
+                const keep = e.target.closest('.asset-item, .asset-toolbar, #asset-upload-panel, #asset-move-panel, button, input, textarea, label, canvas');
+                if (keep) return;
+                clearAssetSelection(true);
+            });
         }
 
         function openInlineAssetUploader() {
@@ -1899,14 +1942,13 @@ function toggleBrokerPanel() {
             drawer.classList.toggle('open', next);
             if (next) {
                 updateAssetAuthUI();
+                bindAssetDrawerBackgroundDeselect();
                 if (assetDrawerAuthed) {
                     await refreshAssetDrawerList();
                     bindDrawerFileMeta();
                 }
             } else {
-                const hl = document.getElementById('asset-highlight');
-                if (hl) hl.style.display = 'none';
-                if (selectionBoxGraphics) selectionBoxGraphics.setVisible(false);
+                clearAssetSelectionUI();
             }
         }
 
