@@ -2038,16 +2038,12 @@ async function generateRpgBackground() {
                     const isDemoNika = DEMO_MODE && (agent.agentId === 'demo_nika' || agent.name === '尼卡');
                     const isDemoMercury = DEMO_MODE && (agent.agentId === 'demo_mercury' || agent.name === '水星');
                     
-                    if (isDemoNika && game.textures.exists('demo_mercury')) {
-                        // 交换映射：尼卡使用 demo_mercury
-                        sprite = game.add.image(p.x, p.y, 'demo_mercury').setOrigin(0.5, 1).setScale(1.10);
-                    } else if (isDemoMercury && game.textures.exists('demo_nika')) {
-                        // 交换映射：水星使用 demo_nika
-                        sprite = game.add.image(p.x, p.y, 'demo_nika').setOrigin(0.5, 1).setScale(1.10);
-                    } else if ((agent.name === '尼卡') && game.textures.exists('guestagent1')) {
-                        sprite = game.add.image(p.x, p.y, 'guestagent1').setOrigin(0.5, 1).setScale(1.15);
-                    } else if ((agent.name === '水星') && game.textures.exists('guestagent2')) {
-                        sprite = game.add.image(p.x, p.y, 'guestagent2').setOrigin(0.5, 1).setScale(1.05);
+                    if (isDemoNika || isDemoMercury) {
+                        // 统一使用动态像素角色，避免依赖已删除的 demo 静态图
+                        const animKey = 'guest_anim_1';
+                        const f = 0;
+                        sprite = game.add.sprite(p.x, p.y, animKey, f).setOrigin(0.5, 1).setScale(1.1);
+                        if (sprite.anims && sprite.anims.play) sprite.anims.play(animKey, true);
                     } else {
                         // 非 demo 访客：优先用动画精灵（guest_anim_x），其次静态图，兜底星星
                         // 先确定角色索引（1-6）
@@ -2433,7 +2429,7 @@ async function generateRpgBackground() {
 
             // cache-busting to avoid stale background on client/CDN
             // use smaller/new map version provided by user
-            this.load.image('office_bg', '/static/office_bg_small' + getExt('office_bg_small.png') + '?v={{VERSION_TIMESTAMP}}');
+            this.load.image('office_bg', '/static/office_bg_small.webp?v={{VERSION_TIMESTAMP}}');
             this.load.spritesheet('star_idle', '/static/star-idle-spritesheet' + getExt('star-idle-spritesheet.png') + '?v={{VERSION_TIMESTAMP}}', { frameWidth: 256, frameHeight: 256 });
             this.load.spritesheet('star_researching', '/static/star-researching-spritesheet' + getExt('star-researching-spritesheet.png'), { frameWidth: 128, frameHeight: 105 });
 
@@ -2451,11 +2447,9 @@ async function generateRpgBackground() {
             this.load.spritesheet('error_bug', '/static/error-bug-spritesheet-grid' + (supportsWebP ? '.webp' : '.png'), { frameWidth: 180, frameHeight: 180 });
 
             // Cat spritesheet: 160x160, 4x4=16 cats
-            this.load.spritesheet('cats', '/static/cats-spritesheet' + (supportsWebP ? '.webp' : '.png'), { frameWidth: 160, frameHeight: 160 });
+            this.load.spritesheet('cats', '/static/cats-spritesheet.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 160, frameHeight: 160 });
 
             // Desk
-            this.load.image('desk', '/static/desk' + getExt('desk.png'));
-
             // Star working animation: repacked to grid to avoid WebGL max texture size limits
             // NOTE: prefer WebP for size, PNG fallback
             this.load.spritesheet('star_working', '/static/star-working-spritesheet-grid' + (supportsWebP ? '.webp' : '.png'), { frameWidth: 230, frameHeight: 144 });
@@ -2466,22 +2460,18 @@ async function generateRpgBackground() {
             // Memo background image
             // memo 底图固定走 png，避免某些端 webp 透明通道异常导致“底图丢失”
             this.load.image('memo_bg', '/static/memo-bg.png?v={{VERSION_TIMESTAMP}}');
-            // New desk image (v2) - force transparent PNG
-            this.load.image('desk_v2', '/static/desk-v2.png');
+            // Desk v2 (webp only)
+            this.load.image('desk_v2', '/static/desk-v2.webp?v={{VERSION_TIMESTAMP}}');
             // Flower spritesheet (65x65, 16 frames)
             this.load.spritesheet('flowers', '/static/flowers-spritesheet' + (supportsWebP ? '.webp' : '.png') + '?v={{VERSION_TIMESTAMP}}', { frameWidth: FLOWERS_FRAME_W, frameHeight: FLOWERS_FRAME_H });
 
             // Guest/Demo agent sprites
-            this.load.image('guestagent1', '/static/guestagent1.webp?v={{VERSION_TIMESTAMP}}');
-            this.load.image('guestagent2', '/static/guestagent2.webp?v={{VERSION_TIMESTAMP}}');
             this.load.spritesheet('guest_anim_1', '/static/guest_anim_1.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 32, frameHeight: 32 });
             this.load.spritesheet('guest_anim_2', '/static/guest_anim_2.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 32, frameHeight: 32 });
             this.load.spritesheet('guest_anim_3', '/static/guest_anim_3.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 32, frameHeight: 32 });
             this.load.spritesheet('guest_anim_4', '/static/guest_anim_4.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 32, frameHeight: 32 });
             this.load.spritesheet('guest_anim_5', '/static/guest_anim_5.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 32, frameHeight: 32 });
             this.load.spritesheet('guest_anim_6', '/static/guest_anim_6.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 32, frameHeight: 32 });
-            this.load.image('demo_nika', '/static/demo_nika.webp?v={{VERSION_TIMESTAMP}}');
-            this.load.image('demo_mercury', '/static/demo_mercury.webp?v={{VERSION_TIMESTAMP}}');
         }
 
         function create() {
