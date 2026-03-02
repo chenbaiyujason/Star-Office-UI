@@ -381,6 +381,8 @@ def _animated_to_spritesheet(
     out_ext: str = ".webp",
     preserve_original: bool = True,
     pixel_art: bool = True,
+    cols: int | None = None,
+    rows: int | None = None,
 ):
     """Convert animated GIF/WEBP to spritesheet, return (out_path, columns, rows, frames, out_frame_w, out_frame_h)."""
     backend = _ensure_magick_or_ffmpeg_available()
@@ -427,31 +429,39 @@ def _animated_to_spritesheet(
         if backend == "magick":
             # 像素风动图转精灵表默认无损，避免颜色/边缘被压缩糊掉
             quality_flag = "-define webp:lossless=true -define webp:method=6 -quality 100" if ext == ".webp" else ""
-            if preserve_original:
-                cmd = (
-                    f"magick '{td}/f_*.png' +append {quality_flag} '{out_path}'"
-                )
+            # 允许按 cols/rows 排布；默认单行
+            if cols is None or cols <= 0:
+                cols_eff = frames
             else:
+                cols_eff = max(1, int(cols))
+            rows_eff = max(1, int(rows)) if (rows is not None and rows > 0) else max(1, math.ceil(frames / cols_eff))
+
+            # 先规范单帧尺寸
+            prep = ""
+            if not preserve_original:
                 magick_filter = "-filter point" if pixel_art else ""
-                cmd = (
-                    f"magick '{td}/f_*.png' "
-                    f"{magick_filter} -resize {out_fw}x{out_fh}^ -gravity center -background none -extent {out_fw}x{out_fh} "
-                    f"+append {quality_flag} '{out_path}'"
-                )
+                prep = f" {magick_filter} -resize {out_fw}x{out_fh}^ -gravity center -background none -extent {out_fw}x{out_fh}"
+
+            cmd = (
+                f"magick '{td}/f_*.png'{prep} "
+                f"-tile {cols_eff}x{rows_eff} -background none -geometry +0+0 {quality_flag} '{out_path}'"
+            )
             rc = os.system(cmd)
             if rc != 0:
                 raise RuntimeError("ImageMagick 拼图失败")
-            return out_path, frames, 1, frames, out_fw, out_fh
+            return out_path, cols_eff, rows_eff, frames, out_fw, out_fh
 
         ffmpeg_quality = "-lossless 1 -compression_level 6 -q:v 100" if ext == ".webp" else ""
+        cols_eff = max(1, int(cols)) if (cols is not None and cols > 0) else frames
+        rows_eff = max(1, int(rows)) if (rows is not None and rows > 0) else max(1, math.ceil(frames / cols_eff))
         if preserve_original:
-            vf = f"tile={frames}x1"
+            vf = f"tile={cols_eff}x{rows_eff}"
         else:
             scale_algo = "neighbor" if pixel_art else "lanczos"
             vf = (
                 f"scale={out_fw}:{out_fh}:force_original_aspect_ratio=decrease:flags={scale_algo},"
                 f"pad={out_fw}:{out_fh}:(ow-iw)/2:(oh-ih)/2:color=0x00000000,"
-                f"tile={frames}x1"
+                f"tile={cols_eff}x{rows_eff}"
             )
         cmd2 = (
             f"ffmpeg -y -pattern_type glob -i '{td}/f_*.png' "
@@ -1251,6 +1261,8 @@ def assets_upload():
                     preserve_original = preserve_original_val.strip() == "1"
 
                 pixel_art = (request.form.get("pixel_art") or "1").strip() == "1"
+                req_cols = int(request.form.get("cols") or 0)
+                req_rows = int(request.form.get("rows") or 0)
                 sheet_path, cols, rows, frames, out_fw, out_fh = _animated_to_spritesheet(
                     src_path,
                     frame_w,
@@ -1258,6 +1270,8 @@ def assets_upload():
                     out_ext=target.suffix.lower(),
                     preserve_original=preserve_original,
                     pixel_art=pixel_art,
+                    cols=(req_cols if req_cols > 0 else None),
+                    rows=(req_rows if req_rows > 0 else None),
                 )
                 shutil.move(sheet_path, str(target))
                 st = target.stat()
