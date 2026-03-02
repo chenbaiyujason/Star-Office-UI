@@ -854,6 +854,7 @@
 
         let game, star, sofa, serverroom, officeBgSprite, areas = {}, currentState = 'idle', pendingDesiredState = null, statusText, lastFetch = 0, lastBlink = 0, lastBubble = 0, targetX = 660, targetY = 170, bubble = null, typewriterText = '', typewriterTarget = '', typewriterIndex = 0, lastTypewriter = 0, syncAnimSprite = null, catBubble = null, selectionBoxGraphics = null;
         const IDLE_SOFA_ANCHOR = { x: 798, y: 272 }; // 统一中心锚点（原 sofa 左上 670,144 的中心）
+        const IDLE_STAR_SCALE = 2.0; // star 单帧128，需要x2与sofa 256完全重合
         let currentOfficeBgTextureKey = 'office_bg';
         let assetDrawerOpen = false;
         let assetDrawerAuthed = (localStorage.getItem('assetDrawerAuthed') === '1');
@@ -2208,7 +2209,7 @@
 
             star = game.physics.add.sprite(areas.breakroom.x, areas.breakroom.y, 'star_idle');
             star.setOrigin(0.5);
-            star.setScale(1.0);
+            star.setScale(IDLE_STAR_SCALE);
             star.setAlpha(0.95);
             star.setDepth(20); // Put Star on top of everything
             // Default: idle shows Star idle animation
@@ -2725,6 +2726,7 @@
                             }
 
                             star.setVisible(true);
+                            star.setScale(IDLE_STAR_SCALE);
                             star.anims.play('star_idle', true);
                             star.setPosition(IDLE_SOFA_ANCHOR.x, IDLE_SOFA_ANCHOR.y);
                         } else if (nextState === 'error') {
@@ -2839,6 +2841,7 @@
                                     window.starWorking.anims.stop();
                                 }
                                 star.setVisible(true);
+                                star.setScale(IDLE_STAR_SCALE);
                                 star.anims.play('star_idle', true);
                                 star.setPosition(IDLE_SOFA_ANCHOR.x, IDLE_SOFA_ANCHOR.y);
                                 sofa.anims.stop();
@@ -2866,6 +2869,7 @@
                                 window.starWorking.anims.stop();
                             }
                             star.setVisible(true);
+                            star.setScale(IDLE_STAR_SCALE);
                             star.anims.play('star_idle', true);
                             star.setPosition(IDLE_SOFA_ANCHOR.x, IDLE_SOFA_ANCHOR.y);
                             sofa.anims.stop();
