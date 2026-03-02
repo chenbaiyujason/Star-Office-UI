@@ -3647,7 +3647,8 @@ function toggleBrokerPanel() {
             }
 
             const text = texts[Math.floor(Math.random() * texts.length)];
-            const bubbleY = anchorY - 70;
+            const bubbleOffsetY = (currentState === 'writing') ? 85 : 70;
+            const bubbleY = anchorY - bubbleOffsetY;
 
             // 只做手机端稍微调大一点，避免发糊
             const isTouch = IS_TOUCH_DEVICE;
