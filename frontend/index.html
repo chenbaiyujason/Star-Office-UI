@@ -1381,7 +1381,19 @@
                     out.textContent = `✅ 已上传：${data.path}`;
                 }
 
-                // 尝试只刷新该对象；失败再提示手动刷新
+                // 精灵表资源（动画）走整页重载：避免把 spritesheet 当静态图替换导致错位/异常
+                const isSpritesheetAsset = !!getSpritesheetFrameMeta({ path });
+                if (isSpritesheetAsset) {
+                    out.textContent += ' ｜ ✅ 动画资源已替换，正在自动刷新场景...';
+                    if (fi) fi.value = '';
+                    updateAssetConfirmButtonState();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                    return;
+                }
+
+                // 静态资源：尝试只刷新该对象
                 const refreshed = await refreshSceneObjectByAssetPath(path);
                 if (refreshed) {
                     out.textContent += ' ｜ ✅ 对象已实时刷新';
