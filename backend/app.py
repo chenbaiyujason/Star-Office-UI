@@ -34,6 +34,7 @@ GEMINI_PYTHON = os.path.join(WORKSPACE_DIR, "skills", "gemini-image-generate", "
 ROOM_REFERENCE_IMAGE = os.path.join(ROOT_DIR, "assets", "room-reference.png")
 BG_HISTORY_DIR = os.path.join(ROOT_DIR, "assets", "bg-history")
 ASSET_POSITIONS_FILE = os.path.join(ROOT_DIR, "asset-positions.json")
+ASSET_DEFAULTS_FILE = os.path.join(ROOT_DIR, "asset-defaults.json")
 
 
 def get_yesterday_date_str():
@@ -318,6 +319,23 @@ def load_asset_positions():
 
 def save_asset_positions(data):
     with open(ASSET_POSITIONS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def load_asset_defaults():
+    if os.path.exists(ASSET_DEFAULTS_FILE):
+        try:
+            with open(ASSET_DEFAULTS_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                    return data
+        except Exception:
+            pass
+    return {}
+
+
+def save_asset_defaults(data):
+    with open(ASSET_DEFAULTS_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
@@ -1166,6 +1184,40 @@ def assets_positions_set():
         all_pos = load_asset_positions()
         all_pos[key] = {"x": x, "y": y, "scale": scale, "updated_at": datetime.now().isoformat()}
         save_asset_positions(all_pos)
+        return jsonify({"ok": True, "key": key, "x": x, "y": y, "scale": scale})
+    except Exception as e:
+        return jsonify({"ok": False, "msg": str(e)}), 500
+
+
+@app.route("/assets/defaults", methods=["GET"])
+def assets_defaults_get():
+    try:
+        return jsonify({"ok": True, "items": load_asset_defaults()})
+    except Exception as e:
+        return jsonify({"ok": False, "msg": str(e)}), 500
+
+
+@app.route("/assets/defaults", methods=["POST"])
+def assets_defaults_set():
+    try:
+        data = request.get_json(silent=True) or {}
+        key = (data.get("key") or "").strip()
+        x = data.get("x")
+        y = data.get("y")
+        scale = data.get("scale")
+        if not key:
+            return jsonify({"ok": False, "msg": "缺少 key"}), 400
+        if x is None or y is None:
+            return jsonify({"ok": False, "msg": "缺少 x/y"}), 400
+        x = float(x)
+        y = float(y)
+        if scale is None:
+            scale = 1.0
+        scale = float(scale)
+
+        all_defaults = load_asset_defaults()
+        all_defaults[key] = {"x": x, "y": y, "scale": scale, "updated_at": datetime.now().isoformat()}
+        save_asset_defaults(all_defaults)
         return jsonify({"ok": True, "key": key, "x": x, "y": y, "scale": scale})
     except Exception as e:
         return jsonify({"ok": False, "msg": str(e)}), 500
