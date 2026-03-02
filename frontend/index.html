@@ -515,14 +515,14 @@
 
             #game-container {
                 width: 100vw;
-                height: auto;
+                height: 66.666vh; /* 办公室占 2/3 屏幕高度 */
                 max-width: 100vw;
-                max-height: none;
+                max-height: 66.666vh;
                 border-width: 0;
                 border-radius: 0;
-                aspect-ratio: 16 / 9;
+                aspect-ratio: auto;
                 flex: 0 0 auto;
-                touch-action: auto; /* 允许页面在手机上自然滑动 */
+                touch-action: auto;
                 overflow: hidden;
             }
 
@@ -995,9 +995,9 @@
             height: 720,
             parent: 'game-container',
             pixelArt: true,
-            // 桌面端保持 FIT；手机端改 RESIZE，让办公室区域真正吃满分配到的高度。
+            // 桌面端保持 FIT；手机端也使用 FIT（参考原项目稳定方案）
             scale: {
-                mode: IS_TOUCH_DEVICE ? Phaser.Scale.RESIZE : Phaser.Scale.FIT,
+                mode: Phaser.Scale.FIT,
                 autoCenter: Phaser.Scale.CENTER_BOTH,
                 width: 1280,
                 height: 720
