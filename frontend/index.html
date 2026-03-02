@@ -1770,6 +1770,12 @@
                 else if (hasFile && !hasPos) out.textContent += ' ｜ ✅ 已上传并刷新';
                 else out.textContent += ' ｜ ✅ 已确认并刷新';
             }
+
+            // 刷新前关闭侧边栏，行为与地图替换一致
+            assetDrawerOpen = false;
+            const drawer = document.getElementById('asset-drawer');
+            if (drawer) drawer.classList.remove('open');
+
             setTimeout(() => window.location.reload(), 400);
         }
 

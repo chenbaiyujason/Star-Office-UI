@@ -1142,17 +1142,21 @@ def assets_positions_set():
         key = (data.get("key") or "").strip()
         x = data.get("x")
         y = data.get("y")
+        scale = data.get("scale")
         if not key:
             return jsonify({"ok": False, "msg": "缺少 key"}), 400
         if x is None or y is None:
             return jsonify({"ok": False, "msg": "缺少 x/y"}), 400
         x = float(x)
         y = float(y)
+        if scale is None:
+            scale = 1.0
+        scale = float(scale)
 
         all_pos = load_asset_positions()
-        all_pos[key] = {"x": x, "y": y, "updated_at": datetime.now().isoformat()}
+        all_pos[key] = {"x": x, "y": y, "scale": scale, "updated_at": datetime.now().isoformat()}
         save_asset_positions(all_pos)
-        return jsonify({"ok": True, "key": key, "x": x, "y": y})
+        return jsonify({"ok": True, "key": key, "x": x, "y": y, "scale": scale})
     except Exception as e:
         return jsonify({"ok": False, "msg": str(e)}), 500
 
