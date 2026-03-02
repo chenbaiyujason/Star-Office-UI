@@ -119,15 +119,17 @@
         }
         #control-buttons {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 8px;
             align-content: start;
             padding-top: 4px;
         }
         #btn-open-drawer {
-            background: #14532d;
+            grid-column: 1 / -1;
+            background: #16a34a;
             border-color: #22c55e;
             color: #ecfdf5;
+            font-weight: 700;
         }
 
         #asset-drawer {
@@ -532,7 +534,7 @@
                 min-height: 44px;
             }
             #control-buttons {
-                grid-template-columns: repeat(5, minmax(0, 1fr));
+                grid-template-columns: repeat(4, minmax(0, 1fr));
                 gap: 6px;
             }
             #control-buttons button {
