@@ -1284,13 +1284,15 @@
             sprite.y = y;
 
             const texKey = sprite?.texture?.key;
-            if (texKey) {
-                assetPositionOverrides[texKey] = { x, y };
+            // 持久化用“资产路径”作为主键，避免 live 热更新纹理 key（xxx_live_时间戳）导致刷新后失效
+            const persistKey = path;
+            if (persistKey) {
+                assetPositionOverrides[persistKey] = { x, y };
                 try {
                     await fetch('/assets/positions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ key: texKey, x, y })
+                        body: JSON.stringify({ key: persistKey, x, y, textureKey: texKey || null })
                     });
                 } catch (e) {
                     console.warn('坐标写入后端失败，已保留本地', e);
@@ -1299,7 +1301,7 @@
 
             drawSelectionBoxOnScene(path);
             highlightSpriteByAssetPath(path);
-            if (out) out.textContent = `✅ 已应用坐标：(${Math.round(x)}, ${Math.round(y)})`;
+            if (out) out.textContent = `✅ 已应用并写入后端：(${Math.round(x)}, ${Math.round(y)})`;
         }
 
         async function applySavedPositionOverrides() {
@@ -1314,9 +1316,18 @@
 
                 const children = getSceneChildren();
                 for (const ch of children) {
-                    const key = ch?.texture?.key;
-                    if (!key) continue;
-                    const ov = serverPositions[key] || assetPositionOverrides[key];
+                    const texKey = ch?.texture?.key;
+                    if (!texKey) continue;
+
+                    // 先尝试 textureKey 命中
+                    let ov = serverPositions[texKey] || assetPositionOverrides[texKey];
+
+                    // 再尝试资产路径命中（推荐持久化键）
+                    if (!ov) {
+                        const assetPath = resolveAssetPathByTextureKey(texKey);
+                        if (assetPath) ov = serverPositions[assetPath] || assetPositionOverrides[assetPath];
+                    }
+
                     if (!ov) continue;
                     const x = Number(ov.x), y = Number(ov.y);
                     if (Number.isFinite(x) && Number.isFinite(y)) {
