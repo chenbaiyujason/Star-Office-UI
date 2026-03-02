@@ -840,7 +840,15 @@
         
         // 获取文件扩展名（根据 WebP 支持情况）
         function getExt(pngFile) {
-            // star-working-spritesheet.png 太宽了，WebP 不支持，始终用 PNG
+            // 回退到 PNG 时，必须保证 png 尺寸与 webp 同规格，否则动画会错帧
+            // 目前这些资源在历史上出现过 png/webp 规格不一致，强制使用 webp 规避错乱
+            const forceWebp = new Set([
+                'star-idle-spritesheet.png',
+                'flowers-spritesheet.png'
+            ]);
+            if (forceWebp.has(pngFile)) return '.webp';
+
+            // star-working-spritesheet.png 太宽，始终用 PNG
             if (pngFile === 'star-working-spritesheet.png') {
                 return '.png';
             }
