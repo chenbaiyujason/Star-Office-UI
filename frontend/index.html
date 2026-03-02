@@ -286,7 +286,7 @@
             width: 0;
             height: 0;
             background: rgba(0, 0, 0, 0.62);
-            z-index: 999999;
+            z-index: 1000001;
             display: none;
             align-items: center;
             justify-content: center;
@@ -1985,7 +1985,24 @@ function toggleBrokerPanel() {
             const overlay = document.getElementById('room-loading-overlay');
             const textEl = document.getElementById('room-loading-text');
             const emojiEl = document.getElementById('room-loading-emoji');
-            if (!overlay || !textEl || !emojiEl || !game?.canvas) return;
+            if (!overlay || !textEl || !emojiEl) return;
+
+            const canvasEl = game?.canvas || document.querySelector('#game-container canvas');
+            const fallbackBox = document.getElementById('game-container');
+            const rect = canvasEl?.getBoundingClientRect?.() || fallbackBox?.getBoundingClientRect?.();
+            if (!rect || !(rect.width > 0 && rect.height > 0)) {
+                // 兜底：即使画布尚未 ready，也先给个全屏遮罩，保证“看得见”
+                overlay.style.left = '0px';
+                overlay.style.top = '0px';
+                overlay.style.width = window.innerWidth + 'px';
+                overlay.style.height = window.innerHeight + 'px';
+            } else {
+                // 精准覆盖办公室画布区域
+                overlay.style.left = rect.left + 'px';
+                overlay.style.top = rect.top + 'px';
+                overlay.style.width = rect.width + 'px';
+                overlay.style.height = rect.height + 'px';
+            }
             const steps = [
                 '正在打包虾头……',
                 '正在打包虾壳……',
@@ -1996,13 +2013,6 @@ function toggleBrokerPanel() {
                 '正在安放咖啡机与花盆……'
             ];
             const emojis = ['🦞','🦀','🦐','🦑','🐙','🐟','🐠','🐡','🦪','🍣','🍤','🍱','🍲','🍜','🍝','🌊','🐚','🪸'];
-
-            // 精准覆盖办公室画布区域
-            const rect = game.canvas.getBoundingClientRect();
-            overlay.style.left = rect.left + 'px';
-            overlay.style.top = rect.top + 'px';
-            overlay.style.width = rect.width + 'px';
-            overlay.style.height = rect.height + 'px';
 
             roomLoadingIndex = 0;
             roomLoadingEmojiIndex = 0;
