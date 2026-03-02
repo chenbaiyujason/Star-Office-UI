@@ -557,13 +557,13 @@
             }
 
             #asset-drawer {
-                width: 100vw;
-                max-width: 100vw;
+                width: 92vw;
+                max-width: 92vw;
             }
             #asset-drawer-body { padding: 8px; }
             #asset-list {
-                display: grid;
-                grid-template-columns: 1fr;
+                display: flex;
+                flex-direction: column;
                 gap: 6px;
             }
             .asset-item {
@@ -588,8 +588,7 @@
                 flex: 1 1 42%;
             }
             #asset-upload-panel button {
-                flex: 1 1 100%;
-                min-height: 42px;
+                min-height: 38px;
             }
         }
     </style>
@@ -1032,10 +1031,9 @@
         let sceneAssetItems = [];
         let selectedAssetInfo = null;
         let assetThumbTimers = [];
-        let assetPositionOverrides = (() => {
-            try { return JSON.parse(localStorage.getItem('assetPositionOverrides') || '{}') || {}; }
-            catch (e) { return {}; }
-        })();
+        // 坐标以服务端为准；清理历史本地缓存，避免把素材挪飞
+        let assetPositionOverrides = {};
+        try { localStorage.removeItem('assetPositionOverrides'); } catch (e) {}
         let isMoving = false;
         let waypoints = []; // list of (x,y) to walk through in order
         let lastWanderAt = 0;
@@ -1253,9 +1251,7 @@
             return null;
         }
 
-        function saveAssetPositionOverrides() {
-            try { localStorage.setItem('assetPositionOverrides', JSON.stringify(assetPositionOverrides || {})); } catch (e) {}
-        }
+        function saveAssetPositionOverrides() { /* deprecated: backend only */ }
 
         async function applyAssetPosition() {
             const path = selectedAssetInfo?.path || '';
@@ -1282,7 +1278,6 @@
             const texKey = sprite?.texture?.key;
             if (texKey) {
                 assetPositionOverrides[texKey] = { x, y };
-                saveAssetPositionOverrides();
                 try {
                     await fetch('/assets/positions', {
                         method: 'POST',
@@ -1301,7 +1296,7 @@
 
         async function applySavedPositionOverrides() {
             try {
-                // 先拉后端持久化坐标，再叠加本地临时坐标
+                // 仅使用后端持久化坐标（避免本地缓存污染）
                 let serverPositions = {};
                 try {
                     const res = await fetch('/assets/positions?t=' + Date.now(), { cache: 'no-store' });
@@ -1313,9 +1308,7 @@
                 for (const ch of children) {
                     const key = ch?.texture?.key;
                     if (!key) continue;
-                    const ovServer = serverPositions[key];
-                    const ovLocal = assetPositionOverrides[key];
-                    const ov = ovLocal || ovServer;
+                    const ov = serverPositions[key] || assetPositionOverrides[key];
                     if (!ov) continue;
                     const x = Number(ov.x), y = Number(ov.y);
                     if (Number.isFinite(x) && Number.isFinite(y)) {
