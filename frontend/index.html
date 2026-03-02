@@ -1330,13 +1330,16 @@
                     const texKey = ch?.texture?.key;
                     if (!texKey) continue;
 
-                    // 先尝试 textureKey 命中
-                    let ov = serverPositions[texKey] || assetPositionOverrides[texKey];
-
-                    // 再尝试资产路径命中（推荐持久化键）
+                    // 先尝试资产路径命中（推荐持久化键，优先级最高）
                     const assetPath = resolveAssetPathByTextureKey(texKey);
-                    if (!ov && assetPath) {
+                    let ov = null;
+                    if (assetPath) {
                         ov = serverPositions[assetPath] || assetPositionOverrides[assetPath];
+                    }
+
+                    // 再尝试 textureKey 命中（兼容旧数据）
+                    if (!ov) {
+                        ov = serverPositions[texKey] || assetPositionOverrides[texKey];
                     }
 
                     // 最后按 stem 模糊匹配（处理 webp/png 或 live key 差异）
