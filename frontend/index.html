@@ -85,7 +85,7 @@
             transition: width 0.3s ease;
         }
         #status-text {
-            position: fixed;
+            position: absolute;
             bottom: 12px;
             left: 12px;
             transform: none;
@@ -94,10 +94,11 @@
             background: rgba(0,0,0,0.7);
             padding: 10px 14px;
             border-radius: 4px;
-            max-width: 42vw;
+            max-width: min(560px, 42%);
             text-align: left;
             font-family: 'ArkPixel', 'Courier New', monospace;
             z-index: 20;
+            pointer-events: none;
         }
         /* 状态控制栏 */
         #control-bar {
@@ -285,11 +286,11 @@
             width: 0;
             height: 0;
             background: rgba(0, 0, 0, 0.62);
-            z-index: 1000001;
+            z-index: 1000003;
             display: none;
             align-items: center;
             justify-content: center;
-            pointer-events: none;
+            pointer-events: auto;
             border-radius: 10px;
         }
         .room-loading-inner {
@@ -636,7 +637,9 @@
         </div>
     </div>
     
-    <div id="game-container"></div>
+    <div id="game-container">
+        <div id="status-text">加载中...</div>
+    </div>
     
     <!-- 底部面板容器 -->
     <div id="bottom-panels">
@@ -672,7 +675,6 @@
         </div>
     </div>
     
-    <div id="status-text">加载中...</div>
     <div id="asset-highlight"></div>
     <div id="room-loading-overlay" aria-live="polite" aria-busy="true">
         <div class="room-loading-inner">
@@ -2047,8 +2049,9 @@ function toggleBrokerPanel() {
                 out.textContent = t('brokerNeedPrompt');
                 return;
             }
-            out.textContent = t('brokerGenerating');
+            // 点击即刻显示遮罩，先于任何网络调用
             showRoomLoadingOverlay('正在打包虾头……');
+            out.textContent = t('brokerGenerating');
             try {
                 const res = await fetch('/assets/generate-rpg-background', {
                     method: 'POST',
@@ -2072,8 +2075,9 @@ function toggleBrokerPanel() {
 
         async function generateRpgBackground() {
             const out = document.getElementById('asset-upload-result');
-            out.textContent = '🎨 正在生成 RPG 房间底图，请稍候（约20-90秒）...';
+            // 点击即刻显示遮罩，先于任何网络调用
             showRoomLoadingOverlay('正在打包虾壳……');
+            out.textContent = '🎨 正在生成 RPG 房间底图，请稍候（约20-90秒）...';
             try {
                 const res = await fetch('/assets/generate-rpg-background', { method: 'POST' });
                 const data = await res.json();
@@ -2093,8 +2097,9 @@ function toggleBrokerPanel() {
 
         async function restoreHomeBackground() {
             const out = document.getElementById('asset-upload-result');
-            out.textContent = '🏡 正在回老家（恢复初始底图）...';
+            // 点击即刻显示遮罩，先于任何网络调用
             showRoomLoadingOverlay('正在召唤老家的虾味记忆……');
+            out.textContent = '🏡 正在回老家（恢复初始底图）...';
             try {
                 const res = await fetch('/assets/restore-reference-background', { method: 'POST' });
                 const data = await res.json();
