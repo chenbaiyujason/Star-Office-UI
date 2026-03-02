@@ -2210,15 +2210,13 @@
             star.setScale(1.4);
             star.setAlpha(0.95);
             star.setDepth(20); // Put Star on top of everything
-            // Default: idle is represented by the sofa animation, so hide Star until non-idle state
-            star.setVisible(false);
-            star.anims.stop();
+            // Default: idle shows Star idle animation
+            star.setVisible(true);
+            star.anims.play('star_idle', true);
 
-            // Start sofa animation (default idle = sofa sitting)
-            if (game.textures.exists('sofa_busy')) {
-                sofa.setTexture('sofa_busy');
-                sofa.anims.play('sofa_busy', true);
-            }
+            // Sofa stays static when idle (no longer the main idle animation)
+            sofa.anims.stop();
+            sofa.setTexture('sofa_idle');
 
             // 加像素风小牌匾：海辛小龙虾的办公室
             const plaqueX = config.width / 2;
@@ -2715,20 +2713,19 @@
                         pendingDesiredState = null;
                         currentState = nextState;
 
-                        // Idle: sofa animation
+                        // Idle: show Star idle animation (main character)
                         if (nextState === 'idle') {
-                            // Sofa
-                            if (game.textures.exists('sofa_busy')) {
-                                sofa.setTexture('sofa_busy');
-                                sofa.anims.play('sofa_busy', true);
-                            }
-                            // Hide moving star, hide desk star
-                            star.setVisible(false);
-                            star.anims.stop();
+                            sofa.anims.stop();
+                            sofa.setTexture('sofa_idle');
+
                             if (window.starWorking) {
                                 window.starWorking.setVisible(false);
                                 window.starWorking.anims.stop();
                             }
+
+                            star.setVisible(true);
+                            star.anims.play('star_idle', true);
+                            star.setPosition(areas.breakroom.x, areas.breakroom.y);
                         } else if (nextState === 'error') {
                             // Error: no working animation at desk
                             sofa.anims.stop();
@@ -2836,13 +2833,15 @@
                             pendingDesiredState = null;
 
                             if (currentState === 'idle') {
-                                // Sitting on sofa: hide Star only when arrived
-                                star.setVisible(false);
-                                star.anims.stop();
                                 if (window.starWorking) {
                                     window.starWorking.setVisible(false);
                                     window.starWorking.anims.stop();
                                 }
+                                star.setVisible(true);
+                                star.anims.play('star_idle', true);
+                                star.setPosition(areas.breakroom.x, areas.breakroom.y);
+                                sofa.anims.stop();
+                                sofa.setTexture('sofa_idle');
                             } else {
                                 // Arrived at desk area: switch to star_working animation
                                 star.setVisible(false);
@@ -2861,16 +2860,15 @@
                         pendingDesiredState = null;
 
                         if (currentState === 'idle') {
-                            star.setVisible(false);
-                            star.anims.stop();
                             if (window.starWorking) {
                                 window.starWorking.setVisible(false);
                                 window.starWorking.anims.stop();
                             }
-                            if (game.textures.exists('sofa_busy')) {
-                                sofa.setTexture('sofa_busy');
-                                sofa.anims.play('sofa_busy', true);
-                            }
+                            star.setVisible(true);
+                            star.anims.play('star_idle', true);
+                            star.setPosition(areas.breakroom.x, areas.breakroom.y);
+                            sofa.anims.stop();
+                            sofa.setTexture('sofa_idle');
                         } else {
                             // Arrived at desk area: switch to star_working animation
                             star.setVisible(false);
@@ -2903,7 +2901,7 @@
         function showBubble() {
             if (bubble) { bubble.destroy(); bubble = null; }
             const texts = BUBBLE_TEXTS[currentState] || BUBBLE_TEXTS.idle;
-            if (currentState === 'idle') return; // no bubble while sitting on sofa
+            if (currentState === 'idle') return; // idle 不显示气泡（可按需开启）
 
             // Bubble anchor should follow current visible character:
             // - syncing: syncAnimSprite
