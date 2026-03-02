@@ -1708,12 +1708,7 @@
                     if (liveFrame) { fw = Math.round(liveFrame.w); fh = Math.round(liveFrame.h); }
                 }
 
-                if ((inputCols > 0 || inputRows > 0) && selectedAssetInfo?.width && selectedAssetInfo?.height) {
-                    const sw = Number(selectedAssetInfo.width);
-                    const sh = Number(selectedAssetInfo.height);
-                    if (inputCols > 0) fw = Math.max(1, Math.floor(sw / inputCols));
-                    if (inputRows > 0) fh = Math.max(1, Math.floor(sh / inputRows));
-                }
+                // 行列只作为辅助显示，不反推覆盖单帧尺寸（避免你手填 frame 后被旧尺寸覆盖）
 
                 if (fw > 0 && fh > 0) {
                     fd.append('frame_w', String(fw));
@@ -1729,6 +1724,20 @@
 
                 if (inputCols > 0) fd.append('cols', String(inputCols));
                 if (inputRows > 0) fd.append('rows', String(inputRows));
+
+                // 前端先做一次显式校验，减少“点了失败但看不懂”的情况
+                if (selectedAssetInfo?.width && selectedAssetInfo?.height && inputCols > 0 && inputRows > 0) {
+                    const sw = Number(selectedAssetInfo.width);
+                    const sh = Number(selectedAssetInfo.height);
+                    if (fw > 0 && fh > 0) {
+                        const expW = fw * inputCols;
+                        const expH = fh * inputRows;
+                        if (expW !== sw || expH !== sh) {
+                            out.textContent = `❌ 参数不匹配：当前资产是 ${sw}x${sh}，你填的是 ${fw}x${fh} × ${inputCols}x${inputRows} (= ${expW}x${expH})`;
+                            return false;
+                        }
+                    }
+                }
                 fd.append('pixel_art', '1');
             }
 
