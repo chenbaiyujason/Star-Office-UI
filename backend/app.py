@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Star Office UI - Backend State Service"""
 
-from flask import Flask, jsonify, send_from_directory, make_response, request
+from flask import Flask, jsonify, send_from_directory, make_response, request, session
 from datetime import datetime, timedelta
 import json
 import os
 import random
+import math
 import re
 import shutil
 import subprocess
@@ -157,6 +158,7 @@ def extract_memo_from_file(file_path):
         return "「昨日记录加载失败」\n\n「往者不可谏，来者犹可追。」"
 
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="/static")
+app.secret_key = os.getenv("FLASK_SECRET_KEY") or os.getenv("STAR_OFFICE_SECRET") or "star-office-dev-secret-change-me"
 
 # Guard join-agent critical section to enforce per-key concurrency under parallel requests
 join_lock = threading.Lock()
@@ -164,6 +166,16 @@ join_lock = threading.Lock()
 # Generate a version timestamp once at server startup for cache busting
 VERSION_TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
 ASSET_DRAWER_PASS_DEFAULT = os.getenv("ASSET_DRAWER_PASS", "1234")
+
+
+def _is_asset_editor_authed() -> bool:
+    return bool(session.get("asset_editor_authed"))
+
+
+def _require_asset_editor_auth():
+    if _is_asset_editor_authed():
+        return None
+    return jsonify({"ok": False, "code": "UNAUTHORIZED", "msg": "Asset editor auth required"}), 401
 
 
 @app.after_request
@@ -260,7 +272,6 @@ def index():
     with open(os.path.join(FRONTEND_DIR, "index.html"), "r", encoding="utf-8") as f:
         html = f.read()
     html = html.replace("{{VERSION_TIMESTAMP}}", VERSION_TIMESTAMP)
-    html = html.replace("{{ASSET_DRAWER_PASS}}", ASSET_DRAWER_PASS_DEFAULT)
     resp = make_response(html)
     resp.headers["Content-Type"] = "text/html; charset=utf-8"
     return resp
@@ -1177,6 +1188,9 @@ def assets_list():
 @app.route("/assets/generate-rpg-background", methods=["POST"])
 def assets_generate_rpg_background():
     """Generate a new RPG-themed background and replace office_bg_small.webp."""
+    guard = _require_asset_editor_auth()
+    if guard:
+        return guard
     try:
         req = request.get_json(silent=True) or {}
         custom_prompt = (req.get("prompt") or "").strip() if isinstance(req, dict) else ""
@@ -1225,6 +1239,9 @@ def assets_generate_rpg_background():
 @app.route("/assets/restore-reference-background", methods=["POST"])
 def assets_restore_reference_background():
     """Restore office_bg_small.webp from fixed reference image."""
+    guard = _require_asset_editor_auth()
+    if guard:
+        return guard
     try:
         target = FRONTEND_PATH / "office_bg_small.webp"
         if not target.exists():
@@ -1267,8 +1284,29 @@ def assets_restore_reference_background():
         return jsonify({"ok": False, "msg": str(e)}), 500
 
 
+@app.route("/assets/auth", methods=["POST"])
+def assets_auth():
+    try:
+        data = request.get_json(silent=True) or {}
+        pwd = (data.get("password") or "").strip()
+        if pwd and pwd == ASSET_DRAWER_PASS_DEFAULT:
+            session["asset_editor_authed"] = True
+            return jsonify({"ok": True, "msg": "认证成功"})
+        return jsonify({"ok": False, "msg": "验证码错误"}), 401
+    except Exception as e:
+        return jsonify({"ok": False, "msg": str(e)}), 500
+
+
+@app.route("/assets/auth/status", methods=["GET"])
+def assets_auth_status():
+    return jsonify({"ok": True, "authed": _is_asset_editor_authed()})
+
+
 @app.route("/assets/positions", methods=["GET"])
 def assets_positions_get():
+    guard = _require_asset_editor_auth()
+    if guard:
+        return guard
     try:
         return jsonify({"ok": True, "items": load_asset_positions()})
     except Exception as e:
@@ -1277,6 +1315,9 @@ def assets_positions_get():
 
 @app.route("/assets/positions", methods=["POST"])
 def assets_positions_set():
+    guard = _require_asset_editor_auth()
+    if guard:
+        return guard
     try:
         data = request.get_json(silent=True) or {}
         key = (data.get("key") or "").strip()
@@ -1303,6 +1344,9 @@ def assets_positions_set():
 
 @app.route("/assets/defaults", methods=["GET"])
 def assets_defaults_get():
+    guard = _require_asset_editor_auth()
+    if guard:
+        return guard
     try:
         return jsonify({"ok": True, "items": load_asset_defaults()})
     except Exception as e:
@@ -1311,6 +1355,9 @@ def assets_defaults_get():
 
 @app.route("/assets/defaults", methods=["POST"])
 def assets_defaults_set():
+    guard = _require_asset_editor_auth()
+    if guard:
+        return guard
     try:
         data = request.get_json(silent=True) or {}
         key = (data.get("key") or "").strip()
@@ -1337,6 +1384,9 @@ def assets_defaults_set():
 
 @app.route("/config/gemini", methods=["GET"])
 def gemini_config_get():
+    guard = _require_asset_editor_auth()
+    if guard:
+        return guard
     try:
         cfg = load_runtime_config()
         key = (cfg.get("gemini_api_key") or "").strip()
@@ -1353,6 +1403,9 @@ def gemini_config_get():
 
 @app.route("/config/gemini", methods=["POST"])
 def gemini_config_set():
+    guard = _require_asset_editor_auth()
+    if guard:
+        return guard
     try:
         data = request.get_json(silent=True) or {}
         api_key = (data.get("api_key") or "").strip()
@@ -1368,6 +1421,9 @@ def gemini_config_set():
 
 @app.route("/assets/upload", methods=["POST"])
 def assets_upload():
+    guard = _require_asset_editor_auth()
+    if guard:
+        return guard
     try:
         rel_path = (request.form.get("path") or "").strip().lstrip("/")
         backup = (request.form.get("backup") or "1").strip() != "0"
