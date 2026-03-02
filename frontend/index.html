@@ -732,6 +732,7 @@
                     <div class="asset-toolbar" id="asset-broker-row">
                         <button class="btn-broker" onclick="toggleBrokerPanel()">找中介</button>
                     </div>
+                    <div id="asset-move-result" class="asset-sub" style="margin-top:4px; margin-bottom:6px;"></div>
                     <div id="asset-broker-panel">
                         <div class="asset-sub" style="margin-bottom:6px;">写你的风格主题（严格保持原始房间结构，只改变视觉风格）</div>
                         <textarea id="asset-broker-prompt" placeholder="例如：像素风赛博东京夜景，霓虹灯、雨夜地面反光、蓝紫主色"></textarea>
@@ -2145,7 +2146,7 @@ function toggleBrokerPanel() {
         }
 
         async function generateCustomRpgBackground() {
-            const out = document.getElementById('asset-upload-result');
+            const out = document.getElementById('asset-move-result') || document.getElementById('asset-upload-result');
             const prompt = (document.getElementById('asset-broker-prompt')?.value || '').trim();
             if (!prompt) {
                 out.textContent = t('brokerNeedPrompt');
@@ -2176,7 +2177,7 @@ function toggleBrokerPanel() {
         }
 
         async function generateRpgBackground() {
-            const out = document.getElementById('asset-upload-result');
+            const out = document.getElementById('asset-move-result') || document.getElementById('asset-upload-result');
             // 点击即刻显示遮罩，先于任何网络调用
             showRoomLoadingOverlay();
             out.textContent = '🎨 正在生成 RPG 房间底图，请稍候（约20-90秒）...';
@@ -2198,7 +2199,7 @@ function toggleBrokerPanel() {
         }
 
         async function restoreHomeBackground() {
-            const out = document.getElementById('asset-upload-result');
+            const out = document.getElementById('asset-move-result') || document.getElementById('asset-upload-result');
             // 点击即刻显示遮罩，先于任何网络调用
             showRoomLoadingOverlay();
             out.textContent = '🏡 正在回老家（恢复初始底图）...';
