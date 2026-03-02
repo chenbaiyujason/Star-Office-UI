@@ -85,7 +85,7 @@
             transition: width 0.3s ease;
         }
         #status-text {
-            position: fixed;
+            position: absolute;
             bottom: 12px;
             left: 12px;
             transform: none;
@@ -94,10 +94,10 @@
             background: rgba(0,0,0,0.7);
             padding: 8px 12px;
             border-radius: 4px;
-            max-width: 520px;
+            max-width: calc(100% - 24px);
             text-align: left;
             font-family: 'ArkPixel', 'Courier New', monospace;
-            z-index: 1000002;
+            z-index: 30;
             pointer-events: none;
             white-space: nowrap;
             overflow: hidden;
@@ -153,7 +153,7 @@
             box-shadow: -8px 0 24px rgba(0,0,0,0.45);
             transform: translateX(100%);
             transition: transform 0.25s ease;
-            z-index: 1000001;
+            z-index: 1000010;
             display: flex;
             flex-direction: column;
         }
@@ -294,7 +294,7 @@
             width: 0;
             height: 0;
             background: rgba(0, 0, 0, 0.62);
-            z-index: 1000003;
+            z-index: 1000000;
             display: none;
             align-items: center;
             justify-content: center;
@@ -1969,11 +1969,21 @@ function toggleBrokerPanel() {
                 }
             }
 
-            // 2) detail/status 左下角（猫窝下方）
+            // 2) detail/status 严格限制在画布内部左下角
             const st = document.getElementById('status-text');
-            if (st && rect && rect.width > 0 && rect.height > 0) {
-                st.style.left = (rect.left + 14) + 'px';
-                st.style.top = (rect.top + rect.height - st.offsetHeight - 14) + 'px';
+            const gameContainer = document.getElementById('game-container');
+            if (st && gameContainer) {
+                if (rect && rect.width > 0 && rect.height > 0) {
+                    const localLeft = Math.max(8, Math.round(rect.left - gameContainer.getBoundingClientRect().left + 14));
+                    const localBottom = 14;
+                    st.style.left = localLeft + 'px';
+                    st.style.bottom = localBottom + 'px';
+                    st.style.maxWidth = Math.max(120, Math.floor(rect.width - 28)) + 'px';
+                } else {
+                    st.style.left = '14px';
+                    st.style.bottom = '14px';
+                    st.style.maxWidth = 'calc(100% - 28px)';
+                }
             }
         }
 
