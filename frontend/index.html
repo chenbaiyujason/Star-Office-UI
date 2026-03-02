@@ -2004,15 +2004,45 @@ function toggleBrokerPanel() {
                 overlay.style.width = rect.width + 'px';
                 overlay.style.height = rect.height + 'px';
             }
-            const steps = [
-                '正在打包虾头……',
-                '正在打包虾壳……',
-                '正在给小龙虾系蝴蝶结……',
-                '正在搬运桌椅到新房间……',
-                '正在给地板抛光上蜡……',
-                '正在调试像素风灯光……',
-                '正在安放咖啡机与花盆……'
-            ];
+            const loadingTexts = {
+                zh: [
+                    '正在给小龙虾擦亮钳子……',
+                    '正在给办公室撒一点海盐星光……',
+                    '正在把咖啡机调到满功率……',
+                    '正在给花盆补充快乐值……',
+                    '正在给沙发拍松软滤镜……',
+                    '正在给像素地板抛个光……',
+                    '正在给办公室装上好运 Buff……',
+                    '正在呼叫海底搬家小分队……',
+                    '正在校准今日灵感频率……',
+                    '正在把新房间调成舒适模式……'
+                ],
+                en: [
+                    'Polishing the lobster claws to a shine…',
+                    'Sprinkling a little sea-salt starlight in the office…',
+                    'Tuning the coffee machine to full power…',
+                    'Refilling the flower pot with happiness…',
+                    'Applying a soft-and-fluffy filter to the sofa…',
+                    'Giving the pixel floor a fresh glow…',
+                    'Installing a good-luck buff for the office…',
+                    'Calling the undersea moving squad…',
+                    'Calibrating today’s inspiration frequency…',
+                    'Setting the new room to comfort mode…'
+                ],
+                ja: [
+                    'ロブスターのハサミをピカピカに磨いています……',
+                    'オフィスに海塩のきらめきを少し振りかけています……',
+                    'コーヒーマシンをフルパワーに調整しています……',
+                    '植木鉢にハッピー値を補充しています……',
+                    'ソファにふわふわフィルターをかけています……',
+                    'ピクセル床をつやっと仕上げています……',
+                    'オフィスに幸運バフを装備しています……',
+                    '海底お引っ越しチームを呼び出しています……',
+                    '本日のひらめき周波数を調整しています……',
+                    '新しい部屋を快適モードに設定しています……'
+                ]
+            };
+            const steps = loadingTexts[uiLang] || loadingTexts.zh;
             const emojis = ['🦞','🦀','🦐','🦑','🐙','🐟','🐠','🐡','🦪','🍣','🍤','🍱','🍲','🍜','🍝','🌊','🐚','🪸'];
 
             roomLoadingIndex = 0;
@@ -2050,7 +2080,7 @@ function toggleBrokerPanel() {
                 return;
             }
             // 点击即刻显示遮罩，先于任何网络调用
-            showRoomLoadingOverlay('正在打包虾头……');
+            showRoomLoadingOverlay();
             out.textContent = t('brokerGenerating');
             try {
                 const res = await fetch('/assets/generate-rpg-background', {
@@ -2076,7 +2106,7 @@ function toggleBrokerPanel() {
         async function generateRpgBackground() {
             const out = document.getElementById('asset-upload-result');
             // 点击即刻显示遮罩，先于任何网络调用
-            showRoomLoadingOverlay('正在打包虾壳……');
+            showRoomLoadingOverlay();
             out.textContent = '🎨 正在生成 RPG 房间底图，请稍候（约20-90秒）...';
             try {
                 const res = await fetch('/assets/generate-rpg-background', { method: 'POST' });
@@ -2098,7 +2128,7 @@ function toggleBrokerPanel() {
         async function restoreHomeBackground() {
             const out = document.getElementById('asset-upload-result');
             // 点击即刻显示遮罩，先于任何网络调用
-            showRoomLoadingOverlay('正在召唤老家的虾味记忆……');
+            showRoomLoadingOverlay();
             out.textContent = '🏡 正在回老家（恢复初始底图）...';
             try {
                 const res = await fetch('/assets/restore-reference-background', { method: 'POST' });
