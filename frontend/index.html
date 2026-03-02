@@ -3307,15 +3307,19 @@ function toggleBrokerPanel() {
                     panToggle.style.background = on ? '#e94560' : '#333';
                 }
                 game.input.setDefaultCursor(on ? 'grab' : 'default');
+                if (isTouchDevice && statusText) {
+                    const info = on ? '视野拖动已开启（可左右拖动画布）' : '视野拖动已关闭（点击左上角“移动视野”可开启）';
+                    statusText.textContent = `状态：[${(STATES[currentState] && STATES[currentState].name) || '待命'}] ${info}`;
+                }
             }
 
             if (panToggle) {
                 panToggle.addEventListener('click', () => setPanEnabled(!panEnabled));
             }
 
-            // 触屏设备默认开启拖动视野，避免必须先点按钮
+            // 手机端默认关闭拖动画面：由左上角“移动视野”开关显式开启
             if (isTouchDevice) {
-                setPanEnabled(true);
+                setPanEnabled(false);
             }
 
             // iOS/Safari 手势策略：
