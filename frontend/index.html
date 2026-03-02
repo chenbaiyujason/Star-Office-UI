@@ -1363,6 +1363,9 @@
                 fd.append('auto_spritesheet', '1');
                 fd.append('frame_w', String(fw));
                 fd.append('frame_h', String(fh));
+                // 保留原始帧尺寸，避免先缩小再放大造成糊化
+                fd.append('preserve_original', '1');
+                fd.append('pixel_art', '1');
             }
 
             if (confirmBtn) {
