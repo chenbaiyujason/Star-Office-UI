@@ -119,13 +119,12 @@
         }
         #control-buttons {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 8px;
             align-content: start;
             padding-top: 4px;
         }
-        #control-buttons button:last-child {
-            grid-column: 1 / span 2;
+        #btn-open-drawer {
             background: #14532d;
             border-color: #22c55e;
             color: #ecfdf5;
@@ -402,6 +401,10 @@
             flex-direction: column;
             overflow: hidden;
         }
+        #memo-panel.no-bg {
+            background-image: none !important;
+            background-color: #111827;
+        }
         #memo-title {
             color: #ffd700;
             font-size: 14px;
@@ -527,6 +530,15 @@
             .guest-agent-buttons button {
                 font-size: 12px;
                 min-height: 44px;
+            }
+            #control-buttons {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                gap: 6px;
+            }
+            #control-buttons button {
+                min-height: 40px;
+                padding: 4px 2px;
+                font-size: 11px;
             }
 
             .guest-agent-item {
@@ -750,6 +762,13 @@
 
         function t(key) { return (I18N[uiLang] && I18N[uiLang][key]) || key; }
 
+        function ensureMemoBgVisible() {
+            const panel = document.getElementById('memo-panel');
+            if (!panel) return;
+            panel.style.backgroundImage = "url('/static/memo-bg.png?v={{VERSION_TIMESTAMP}}')";
+            panel.classList.remove('no-bg');
+        }
+
         function applyLanguage() {
             const setText = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); };
             const setPh = (id, key) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); };
@@ -805,6 +824,7 @@
                 const on = panBtn.dataset.on === '1';
                 panBtn.textContent = on ? t('lockView') : t('moveView');
             }
+            ensureMemoBgVisible();
         }
 
         function toggleLanguage() {
@@ -2456,7 +2476,8 @@ async function generateRpgBackground() {
             this.load.spritesheet('sync_anim', '/static/sync-animation-spritesheet-grid' + (supportsWebP ? '.webp' : '.png'), { frameWidth: 256, frameHeight: 256 });
 
             // Memo background image
-            this.load.image('memo_bg', '/static/memo-bg' + (supportsWebP ? '.webp' : '.png'));
+            // memo 底图固定走 png，避免某些端 webp 透明通道异常导致“底图丢失”
+            this.load.image('memo_bg', '/static/memo-bg.png?v={{VERSION_TIMESTAMP}}');
             // New desk image (v2) - force transparent PNG
             this.load.image('desk_v2', '/static/desk-v2.png');
             // Flower spritesheet (65x65, 16 frames)
