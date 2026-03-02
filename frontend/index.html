@@ -1773,7 +1773,40 @@
             setTimeout(() => window.location.reload(), 400);
         }
 
-async function generateRpgBackground() {
+function toggleBrokerPanel() {
+            const p = document.getElementById('asset-broker-panel');
+            if (!p) return;
+            p.classList.toggle('open');
+        }
+
+        async function generateCustomRpgBackground() {
+            const out = document.getElementById('asset-upload-result');
+            const prompt = (document.getElementById('asset-broker-prompt')?.value || '').trim();
+            if (!prompt) {
+                out.textContent = '请先输入中介方案描述';
+                return;
+            }
+            out.textContent = '🏘️ 正在按中介方案生成底图，请稍候（约20-90秒）...';
+            try {
+                const res = await fetch('/assets/generate-rpg-background', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                const data = await res.json();
+                if (!data.ok) {
+                    out.textContent = `❌ 生成失败：${data.msg || res.status}`;
+                    return;
+                }
+                out.textContent = '✅ 已按中介方案生成并替换底图，正在刷新房间...';
+                const ok = await refreshOfficeBackgroundOnly();
+                if (!ok) out.textContent = '✅ 已生成并替换底图（局部刷新失败，可手动刷新页面）';
+            } catch (e) {
+                out.textContent = `❌ 生成失败：${e}`;
+            }
+        }
+
+        async function generateRpgBackground() {
             const out = document.getElementById('asset-upload-result');
             out.textContent = '🎨 正在生成 RPG 房间底图，请稍候（约20-90秒）...';
             try {
