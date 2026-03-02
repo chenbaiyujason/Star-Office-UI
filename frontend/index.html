@@ -1375,8 +1375,9 @@
                 fd.append('auto_spritesheet', '1');
                 fd.append('frame_w', String(fw));
                 fd.append('frame_h', String(fh));
-                // 保留原始帧尺寸，避免先缩小再放大造成糊化
-                fd.append('preserve_original', '1');
+                // 精灵表必须匹配项目帧规格（否则 Phaser 切帧会错乱闪烁）
+                // 使用像素风缩放（nearest）避免模糊
+                fd.append('preserve_original', '0');
                 fd.append('pixel_art', '1');
             }
 
