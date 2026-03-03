@@ -369,7 +369,7 @@ def save_asset_defaults(data):
 def load_runtime_config():
     base = {
         "gemini_api_key": os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or "",
-        "gemini_model": os.getenv("GEMINI_MODEL") or "gemini-3.1-flash-image-preview"
+        "gemini_model": os.getenv("GEMINI_MODEL") or "nanobanana-pro"
     }
     if os.path.exists(RUNTIME_CONFIG_FILE):
         try:
@@ -593,24 +593,19 @@ def _generate_rpg_background_to_webp(out_webp_path: str, width: int = 1280, heig
     if not style_hint:
         style_hint = theme
 
-    # 默认使用更稳妥的 quality 档，避免 fast 模型在部分 API 通道不可用
-    mode = (speed_mode or "quality").strip().lower()
+    mode = (speed_mode or "fast").strip().lower()
     if mode not in {"fast", "quality"}:
         mode = "fast"
 
-    configured_model = (runtime_cfg.get("gemini_model") or "").strip() or "gemini-3.1-flash-image-preview"
+    configured_model = (runtime_cfg.get("gemini_model") or "").strip() or "nanobanana-pro"
     if mode == "fast":
         selected_model = "nanobanana-2"
-        # fast 也提高基础清晰度：从 1024x576 提升到 1152x648（牺牲少量速度）
-        gen_width, gen_height = 1152, 648
-        ref_width, ref_height = 1152, 648
+        gen_width, gen_height = 1024, 576
+        ref_width, ref_height = 1024, 576
     else:
         selected_model = configured_model
         gen_width, gen_height = width, height
         ref_width, ref_height = width, height
-
-    if mode == "fast" and selected_model not in {"nanobanana-2", "nanobanana-pro"}:
-        selected_model = "nanobanana-2"
 
     prompt = (
         "Use a top-down pixel room composition compatible with an office game scene. "
@@ -654,31 +649,9 @@ def _generate_rpg_background_to_webp(out_webp_path: str, width: int = 1280, heig
     env["GEMINI_API_KEY"] = api_key
     env["GEMINI_MODEL"] = selected_model
 
-    def _run_cmd(cmd_args):
-        return subprocess.run(cmd_args, capture_output=True, text=True, env=env, timeout=240)
-
-    proc = _run_cmd(cmd)
-    if proc.returncode != 0 and mode == "fast":
-        err_text = (proc.stderr or proc.stdout or "").strip().lower()
-        if ("not found" in err_text and "models/" in err_text) or ("model_not_available" in err_text):
-            # fast 模型不可用时自动回退到稳定模型
-            fallback_model = configured_model or "gemini-3.1-flash-image-preview"
-            cmd_fallback = cmd[:]
-            if "--model" in cmd_fallback:
-                idx = cmd_fallback.index("--model")
-                if idx + 1 < len(cmd_fallback):
-                    cmd_fallback[idx + 1] = fallback_model
-            env["GEMINI_MODEL"] = fallback_model
-            proc = _run_cmd(cmd_fallback)
-
+    proc = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=240)
     if proc.returncode != 0:
-        err_text = (proc.stderr or proc.stdout or "").strip()
-        low = err_text.lower()
-        if "your api key was reported as leaked" in low or "permission_denied" in low:
-            raise RuntimeError("API_KEY_REVOKED_OR_LEAKED")
-        if "not found" in low and "models/" in low:
-            raise RuntimeError("MODEL_NOT_AVAILABLE")
-        raise RuntimeError(f"生图失败: {err_text}")
+        raise RuntimeError(f"生图失败: {proc.stderr or proc.stdout}")
 
     try:
         result = json.loads(proc.stdout.strip().splitlines()[-1])
@@ -698,18 +671,11 @@ def _generate_rpg_background_to_webp(out_webp_path: str, width: int = 1280, heig
 
     with Image.open(gen_path) as im:
         im = im.convert("RGBA")
-        # 质量模式优先保细节；快速模式优先速度
-        if mode == "fast":
-            im = im.resize((gen_width, gen_height), Image.Resampling.LANCZOS)
-            if (gen_width, gen_height) != (width, height):
-                # fast 的放大改为 LANCZOS，牺牲少量速度换更高细节
-                im = im.resize((width, height), Image.Resampling.LANCZOS)
-            im.save(out_webp_path, "WEBP", quality=96, method=6)
-        else:
-            # quality：确保输出标准尺寸，同时使用无损 webp，减少压缩损失
-            if im.size != (width, height):
-                im = im.resize((width, height), Image.Resampling.LANCZOS)
-            im.save(out_webp_path, "WEBP", lossless=True, quality=100, method=6)
+        # fast 模式先做 1024x576 标准化，再放大到 1280x720
+        im = im.resize((gen_width, gen_height), Image.Resampling.LANCZOS)
+        if (gen_width, gen_height) != (width, height):
+            im = im.resize((width, height), Image.Resampling.LANCZOS)
+        im.save(out_webp_path, "WEBP", quality=92, method=6)
 
 
 def state_to_area(state):
@@ -1228,7 +1194,7 @@ def assets_generate_rpg_background():
     try:
         req = request.get_json(silent=True) or {}
         custom_prompt = (req.get("prompt") or "").strip() if isinstance(req, dict) else ""
-        speed_mode = (req.get("speed_mode") or "quality").strip().lower() if isinstance(req, dict) else "quality"
+        speed_mode = (req.get("speed_mode") or "fast").strip().lower() if isinstance(req, dict) else "fast"
         if speed_mode not in {"fast", "quality"}:
             speed_mode = "fast"
 
@@ -1267,10 +1233,6 @@ def assets_generate_rpg_background():
         msg = str(e)
         if msg == "MISSING_API_KEY":
             return jsonify({"ok": False, "code": "MISSING_API_KEY", "msg": "Missing GEMINI_API_KEY or GOOGLE_API_KEY"}), 400
-        if msg == "API_KEY_REVOKED_OR_LEAKED":
-            return jsonify({"ok": False, "code": "API_KEY_REVOKED_OR_LEAKED", "msg": "API key is revoked or flagged as leaked. Please rotate to a new key."}), 400
-        if msg == "MODEL_NOT_AVAILABLE":
-            return jsonify({"ok": False, "code": "MODEL_NOT_AVAILABLE", "msg": "Configured model is not available for this API key/channel."}), 400
         return jsonify({"ok": False, "msg": msg}), 500
 
 
@@ -1433,7 +1395,7 @@ def gemini_config_get():
             "ok": True,
             "has_api_key": bool(key),
             "api_key_masked": masked,
-            "gemini_model": cfg.get("gemini_model") or "gemini-3.1-flash-image-preview",
+            "gemini_model": cfg.get("gemini_model") or "nanobanana-pro",
         })
     except Exception as e:
         return jsonify({"ok": False, "msg": str(e)}), 500
@@ -1447,7 +1409,7 @@ def gemini_config_set():
     try:
         data = request.get_json(silent=True) or {}
         api_key = (data.get("api_key") or "").strip()
-        model = (data.get("model") or "").strip() or "gemini-3.1-flash-image-preview"
+        model = (data.get("model") or "").strip() or "nanobanana-pro"
         payload = {"gemini_model": model}
         if api_key:
             payload["gemini_api_key"] = api_key
