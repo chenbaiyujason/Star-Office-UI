@@ -232,42 +232,42 @@
 
         #asset-move-panel { border:1px solid #334155; background:#0b1220; border-radius:10px; padding:10px; margin-bottom:10px; }
         #asset-move-row { justify-content: center; gap:12px; margin-bottom:0; }
-        #asset-move-row .btn-move {
-            background:#facc15;
-            color:#1f2937;
-            border-color:#eab308;
-            font-size:14px;
-            padding:11px 0;
+        #asset-move-row .btn-move,
+        #asset-move-row .btn-home,
+        #asset-broker-row .btn-broker {
             width:152px;
+            height:52px;
+            padding:0 10px;
+            border:none;
+            border-radius:0;
+            background-repeat:no-repeat;
+            background-size:300% 100%;
+            background-position:0 0;
+            image-rendering: pixelated;
+            color:#fff;
             text-align:center;
+            font-size:14px;
             font-weight:700;
-            transition: transform .08s ease, filter .12s ease, box-shadow .12s ease;
-            box-shadow: 0 2px 0 rgba(0,0,0,.25);
+            letter-spacing:.3px;
+            text-shadow:
+                0 1px 0 rgba(0,0,0,.65),
+                1px 0 0 rgba(0,0,0,.45),
+                -1px 0 0 rgba(0,0,0,.45);
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            transition: transform .08s ease, filter .12s ease;
+            box-shadow:none;
+        }
+        #asset-move-row .btn-move {
+            background-image:url('/static/btn-move-house-sprite.png?v={{VERSION_TIMESTAMP}}');
         }
         #asset-move-row .btn-home {
-            background:#16a34a;
-            color:#ecfdf5;
-            border-color:#22c55e;
-            font-size:14px;
-            padding:11px 0;
-            width:152px;
-            text-align:center;
-            font-weight:700;
-            transition: transform .08s ease, filter .12s ease, box-shadow .12s ease;
-            box-shadow: 0 2px 0 rgba(0,0,0,.25);
+            background-image:url('/static/btn-back-home-sprite.png?v={{VERSION_TIMESTAMP}}');
         }
         #asset-broker-row { justify-content:center; margin-top:8px; margin-bottom:0; }
         #asset-broker-row .btn-broker {
-            background:#0ea5e9;
-            color:#e0f2fe;
-            border-color:#38bdf8;
-            font-size:14px;
-            padding:11px 14px;
-            min-width:152px;
-            text-align:center;
-            font-weight:700;
-            transition: transform .08s ease, filter .12s ease, box-shadow .12s ease;
-            box-shadow: 0 2px 0 rgba(0,0,0,.25);
+            background-image:url('/static/btn-broker-sprite.png?v={{VERSION_TIMESTAMP}}');
         }
         #asset-broker-panel {
             display:none;
@@ -313,8 +313,21 @@
         #asset-broker-row .btn-broker.is-active,
         #asset-broker-actions button.is-active {
             transform: translateY(1px) scale(0.98);
-            box-shadow: 0 1px 0 rgba(0,0,0,.35) inset;
-            filter: brightness(0.92);
+            filter: brightness(0.96);
+        }
+
+        #asset-move-row .btn-move:active,
+        #asset-move-row .btn-move.is-active,
+        #asset-move-row .btn-home:active,
+        #asset-move-row .btn-home.is-active,
+        #asset-broker-row .btn-broker:active,
+        #asset-broker-row .btn-broker.is-active {
+            background-position:50% 0;
+        }
+        #asset-move-row .btn-move.is-done,
+        #asset-move-row .btn-home.is-done,
+        #asset-broker-row .btn-broker.is-done {
+            background-position:100% 0;
         }
 
 
@@ -2274,8 +2287,9 @@ function toggleBrokerPanel() {
             return await refreshSceneObjectByAssetPath('office_bg_small.webp');
         }
 
-        function markMoveSuccess(outEl) {
+        function markMoveSuccess(outEl, btnEl = null) {
             if (outEl) outEl.textContent = t('moveSuccess');
+            if (btnEl) setButtonDone(btnEl);
             try { setState('idle', t('moveSuccess').replace('✅ ', '')); } catch (e) {}
         }
 
@@ -2340,8 +2354,16 @@ function toggleBrokerPanel() {
             setTimeout(() => el.classList.remove('is-active'), ms);
         }
 
+        function setButtonDone(el, holdMs = 1200) {
+            if (!el) return;
+            el.classList.remove('is-active');
+            el.classList.add('is-done');
+            setTimeout(() => el.classList.remove('is-done'), holdMs);
+        }
+
         async function generateCustomRpgBackground() {
-            flashButtonActive(document.querySelector('#asset-broker-row .btn-broker'));
+            const brokerBtn = document.querySelector('#asset-broker-row .btn-broker');
+            flashButtonActive(brokerBtn);
             const out = document.getElementById('asset-move-result') || document.getElementById('asset-upload-result');
             const prompt = (document.getElementById('asset-broker-prompt')?.value || '').trim();
             if (!prompt) {
@@ -2377,7 +2399,7 @@ function toggleBrokerPanel() {
                 out.textContent = t('brokerDone');
                 const ok = await refreshOfficeBackgroundOnly();
                 if (ok) {
-                    markMoveSuccess(out);
+                    markMoveSuccess(out, brokerBtn);
                 } else {
                     out.textContent = '✅ 已生成并替换底图（局部刷新失败，可手动刷新页面）';
                 }
@@ -2389,7 +2411,8 @@ function toggleBrokerPanel() {
         }
 
         async function generateRpgBackground() {
-            flashButtonActive(document.getElementById('btn-move-house'));
+            const moveBtn = document.getElementById('btn-move-house');
+            flashButtonActive(moveBtn);
             const out = document.getElementById('asset-move-result') || document.getElementById('asset-upload-result');
             // 点击即刻显示遮罩，先于任何网络调用
             showRoomLoadingOverlay();
@@ -2420,7 +2443,7 @@ function toggleBrokerPanel() {
                 out.textContent = '✅ 已生成并替换底图，正在刷新房间...';
                 const ok = await refreshOfficeBackgroundOnly();
                 if (ok) {
-                    markMoveSuccess(out);
+                    markMoveSuccess(out, moveBtn);
                 } else {
                     out.textContent = '✅ 已生成并替换底图（局部刷新失败，可手动刷新页面）';
                 }
@@ -2432,7 +2455,8 @@ function toggleBrokerPanel() {
         }
 
         async function restoreHomeBackground() {
-            flashButtonActive(document.getElementById('btn-back-home'));
+            const homeBtn = document.getElementById('btn-back-home');
+            flashButtonActive(homeBtn);
             const out = document.getElementById('asset-move-result') || document.getElementById('asset-upload-result');
             // 点击即刻显示遮罩，先于任何网络调用
             showRoomLoadingOverlay();
@@ -2447,7 +2471,7 @@ function toggleBrokerPanel() {
                 out.textContent = '✅ 已恢复初始底图';
                 const ok = await refreshOfficeBackgroundOnly();
                 if (ok) {
-                    markMoveSuccess(out);
+                    markMoveSuccess(out, homeBtn);
                 } else {
                     out.textContent = '✅ 已恢复初始底图（局部刷新失败，可手动刷新页面）';
                 }
