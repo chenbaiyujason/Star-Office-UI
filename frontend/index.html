@@ -21,7 +21,7 @@
             min-height: 100vh;
             font-family: 'ArkPixel', 'Courier New', monospace;
             padding: 20px 0;
-            gap: 20px;
+            gap: 10px;
             overflow-x: hidden;
         }
         /* 底部面板容器 */
@@ -40,6 +40,7 @@
             gap: 20px;
             width: 1280px;
             max-width: none;
+            justify-content: flex-start;
         }
         #game-container {
             position: relative;
@@ -121,7 +122,7 @@
             border-radius: 8px;
             border: 2px solid #64477d;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            width: 380px;
+            width: 390px;
             height: 300px;
             display: flex;
             flex-direction: column;
@@ -134,7 +135,7 @@
             text-align: center;
             letter-spacing: 1px;
             padding: 6px 0 10px;
-            border-bottom: 2px solid #4a4f5f;
+            border-bottom: 0;
         }
         #control-buttons {
             display: grid;
@@ -145,9 +146,9 @@
         }
         #btn-open-drawer {
             grid-column: 1 / -1;
-            background: #16a34a;
-            border-color: #22c55e;
-            color: #ecfdf5;
+            background: #78a340;
+            border-color: #8fbe4a;
+            color: #f3ffe6;
             font-weight: 700;
         }
 
@@ -232,32 +233,38 @@
             background:#facc15;
             color:#1f2937;
             border-color:#eab308;
-            font-size:13px;
-            padding:8px 0;
-            width:128px;
+            font-size:14px;
+            padding:11px 0;
+            width:152px;
             text-align:center;
             font-weight:700;
+            transition: transform .08s ease, filter .12s ease, box-shadow .12s ease;
+            box-shadow: 0 2px 0 rgba(0,0,0,.25);
         }
         #asset-move-row .btn-home {
             background:#16a34a;
             color:#ecfdf5;
             border-color:#22c55e;
-            font-size:13px;
-            padding:8px 0;
-            width:128px;
+            font-size:14px;
+            padding:11px 0;
+            width:152px;
             text-align:center;
             font-weight:700;
+            transition: transform .08s ease, filter .12s ease, box-shadow .12s ease;
+            box-shadow: 0 2px 0 rgba(0,0,0,.25);
         }
         #asset-broker-row { justify-content:center; margin-top:8px; margin-bottom:0; }
         #asset-broker-row .btn-broker {
             background:#0ea5e9;
             color:#e0f2fe;
             border-color:#38bdf8;
-            font-size:12px;
-            padding:6px 12px;
-            min-width:120px;
+            font-size:14px;
+            padding:11px 14px;
+            min-width:152px;
             text-align:center;
             font-weight:700;
+            transition: transform .08s ease, filter .12s ease, box-shadow .12s ease;
+            box-shadow: 0 2px 0 rgba(0,0,0,.25);
         }
         #asset-broker-panel {
             display:none;
@@ -279,15 +286,23 @@
         #asset-broker-actions button {
             background:#22c55e; color:#052e16; border-color:#16a34a; font-weight:700;
         }
+        #asset-move-row .btn-move:hover,
+        #asset-move-row .btn-home:hover,
+        #asset-broker-row .btn-broker:hover {
+            filter: brightness(1.06);
+        }
+        #asset-move-row .btn-move:active,
+        #asset-move-row .btn-home:active,
+        #asset-broker-row .btn-broker:active,
+        #asset-move-row .btn-move.is-active,
+        #asset-move-row .btn-home.is-active,
+        #asset-broker-row .btn-broker.is-active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 1px 0 rgba(0,0,0,.35) inset;
+            filter: brightness(0.92);
+        }
 
-        .asset-inline-switch {
-            display:flex; align-items:center; justify-content:center;
-            width:36px;
-        }
-        .asset-inline-switch input[type="checkbox"] {
-            width:16px; height:16px; cursor:pointer;
-            accent-color:#22c55e;
-        }
+
         #asset-highlight {
             position: fixed;
             border: 3px solid #22c55e;
@@ -350,12 +365,26 @@
             background: #4a4f5f;
             border-color: #e94560;
         }
+        /* 装修房间按钮使用专属绿色，避免被通用按钮样式覆盖 */
+        #control-bar #btn-open-drawer {
+            background: #78a340 !important;
+            border-color: #8fbe4a !important;
+            color: #f3ffe6 !important;
+        }
+        #control-bar #btn-open-drawer:hover {
+            background: #86b44a !important;
+            border-color: #9bcd55 !important;
+        }
+        #control-bar #btn-open-drawer:active {
+            background: #6d953a !important;
+            border-color: #7da943 !important;
+        }
         /* Guest Agent 名单面板（右下角） */
         #guest-agent-panel {
-            width: 360px;
+            width: 390px;
             height: 300px;
             background: #2c2f3a;
-            padding: 12px;
+            padding: 10px 10px 12px;
             border-radius: 8px;
             border: 2px solid #64477d;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
@@ -369,9 +398,9 @@
             font-weight: bold;
             text-align: center;
             letter-spacing: 1px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #4a4f5f;
-            margin-bottom: 6px;
+            padding: 6px 0 10px;
+            border-bottom: 0;
+            margin-bottom: 0;
         }
         #guest-agent-list {
             flex-grow: 1;
@@ -428,7 +457,7 @@
         }
         /* Memo 区域 - 4:3 小正方形 */
         #memo-panel {
-            width: 400px;
+            width: 460px;
             height: 300px;
             background-image: url('/static/memo-bg.webp');
             background-size: cover;
@@ -446,12 +475,15 @@
             background-color: #111827;
         }
         #memo-title {
-            color: #ffd700;
-            font-size: 14px;
+            color: #1b192e;
+            font-size: 16px;
+            font-weight: bold;
             margin-bottom: 6px;
             text-align: center;
             letter-spacing: 1px;
             flex-shrink: 0;
+            position: relative;
+            top: 15px;
         }
         #memo-date {
             color: #888;
@@ -460,7 +492,8 @@
             text-align: right;
             flex-shrink: 0;
             position: relative;
-            left: -30px; /* move date left by 30px */
+            left: -40px; /* move date left by 40px */
+            top: -10px;
         }
         #memo-content {
             color: #3b3b32;
@@ -472,7 +505,8 @@
             flex-grow: 1;
             padding-right: 4px;
             position: relative;
-            left: 80px; /* move content right by 80px */
+            left: 100px; /* move content right by 100px */
+            top: -10px;
         }
         #memo-content::-webkit-scrollbar {
             width: 6px;
@@ -676,7 +710,7 @@
         <div id="bottom-panels">
         <!-- Memo 面板 -->
         <div id="memo-panel">
-            <div id="memo-title">— 昨 日 小 记 —</div>
+            <div id="memo-title">昨 日 小 记</div>
             <div id="memo-date"></div>
             <div class="memo-decoration">─ ─ ─ ─ ─</div>
             <div id="memo-content">
@@ -699,7 +733,7 @@
 
         <!-- Guest Agent 名单面板（右下角） -->
         <div id="guest-agent-panel">
-            <div id="guest-agent-panel-title">— 访 客 列 表 —</div>
+            <div id="guest-agent-panel-title">访 客 列 表</div>
             <div id="guest-agent-list">
                 <div style="color:#9ca3af;font-size:12px;text-align:center;padding:20px 0;">正在加载访客...</div>
             </div>
@@ -745,17 +779,21 @@
                         <textarea id="asset-broker-prompt" placeholder="例如：像素风赛博东京夜景，霓虹灯、雨夜地面反光、蓝紫主色"></textarea>
                         <div class="asset-toolbar" style="margin-top:6px; gap:8px; align-items:center; justify-content:flex-start;">
                             <span id="speed-mode-label" class="asset-sub" style="min-width:62px;">生成模式</span>
-                            <button id="speed-fast-btn" type="button" onclick="setSpeedMode('fast')" style="background:#22c55e;color:#052e16;border-color:#16a34a;">⚡ 快速</button>
-                            <button id="speed-quality-btn" type="button" onclick="setSpeedMode('quality')" style="background:#334155;color:#e5e7eb;border-color:#475569;">✨ 高质量</button>
+                            <button id="speed-fast-btn" type="button" onclick="setSpeedMode('fast')" style="background:#22c55e;color:#052e16;border-color:#16a34a;">🍌2</button>
+                            <button id="speed-quality-btn" type="button" onclick="setSpeedMode('quality')" style="background:#334155;color:#e5e7eb;border-color:#475569;">🍌Pro</button>
                         </div>
-                        <div id="asset-gemini-config" style="display:none; margin-top:6px;">
-                            <div class="asset-sub" style="margin-bottom:4px;">生图 API Key 缺失，请填写后再试：</div>
-                            <div class="asset-toolbar" style="gap:6px; flex-wrap:wrap;">
-                                <input id="gemini-api-key-input" type="password" placeholder="粘贴 GEMINI_API_KEY" style="min-width:220px; flex:1;" />
-                                <button onclick="saveGeminiConfigFromUI()">保存 Key</button>
+                        <details id="asset-gemini-panel" style="margin-top:6px; border:1px dashed #334155; border-radius:8px; padding:8px; background:#0b1220;">
+                            <summary id="gemini-panel-summary" style="cursor:pointer; color:#cbd5e1;">🔐 API 设置（可折叠）</summary>
+                            <div id="asset-gemini-config" style="display:block; margin-top:6px;">
+                                <div id="gemini-config-hint" class="asset-sub" style="margin-bottom:4px;">可选：填写你的生图 API Key（留空不影响基础功能）</div>
+                                <div id="gemini-mask-status" class="asset-sub" style="margin-bottom:6px; color:#a7f3d0;"></div>
+                                <div class="asset-toolbar" style="gap:6px; flex-wrap:wrap;">
+                                    <input id="gemini-api-key-input" type="password" placeholder="粘贴 GEMINI_API_KEY（不会回显）" style="min-width:220px; flex:1;" autocomplete="new-password" />
+                                    <button onclick="saveGeminiConfigFromUI()">保存 Key</button>
+                                </div>
+                                <div id="gemini-config-msg" class="asset-sub" style="margin-top:4px;"></div>
                             </div>
-                            <div id="gemini-config-msg" class="asset-sub" style="margin-top:4px;"></div>
-                        </div>
+                        </details>
                         <div id="asset-broker-actions">
                             <button onclick="generateCustomRpgBackground()">按中介方案搬家</button>
                         </div>
@@ -767,20 +805,8 @@
                 <div id="asset-list"></div>
                 <div id="asset-upload-panel">
                     <input id="asset-upload-file" type="file" accept="image/*" style="display:none;" />
-                    <div class="asset-toolbar" style="margin-top:0; margin-bottom:6px;">
-                        <button id="asset-choose-btn" onclick="openInlineAssetUploader()">选择图片</button>
-                    </div>
-                    <div class="asset-toolbar" style="gap:6px; flex-wrap:wrap; margin-bottom:6px;">
-                        <input id="asset-frame-w" type="number" min="1" step="1" placeholder="单帧宽" style="width:86px;" />
-                        <input id="asset-frame-h" type="number" min="1" step="1" placeholder="单帧高" style="width:86px;" />
-                        <input id="asset-cols" type="number" min="1" step="1" placeholder="列" style="width:64px;" />
-                        <input id="asset-rows" type="number" min="1" step="1" placeholder="行" style="width:64px;" />
-                    </div>
-                    <div class="asset-toolbar" style="gap:6px; flex-wrap:wrap; margin-bottom:6px;">
-                        <input id="asset-pos-x" type="number" step="1" placeholder="X" style="width:86px;" />
-                        <input id="asset-pos-y" type="number" step="1" placeholder="Y" style="width:86px;" />
-                        <input id="asset-scale" type="number" min="1" step="1" value="100" placeholder="缩放%" style="width:92px;" />
-                        <button id="asset-set-default-btn" onclick="setAssetAsDefault()" disabled style="opacity:.55;">设为默认</button>
+                    <div class="asset-toolbar" style="margin-top:0; margin-bottom:6px; gap:8px;">
+                        <button id="asset-choose-btn" onclick="openInlineAssetUploader()">上传替换素材</button>
                         <button id="asset-commit-refresh-btn" onclick="commitAndRefresh()" disabled style="opacity:.55;">确认并刷新</button>
                     </div>
                     <div id="asset-upload-result" class="asset-sub"></div>
@@ -820,12 +846,12 @@
                 brokerGenerating: '🏘️ 正在按中介方案生成底图，请稍候（约20-90秒）...',
                 brokerDone: '✅ 已按中介方案生成并替换底图，正在刷新房间...',
                 brokerMissingKey: '❌ 生图失败：缺少 GEMINI API Key，请在下方填写并保存后重试',
-                speedModeLabel: '生成模式', speedFast: '⚡ 快速', speedQuality: '✨ 高质量',
+                geminiPanelTitle: '🔐 API 设置（可折叠）', geminiHint: '可选：填写你的生图 API Key（留空不影响基础功能）', geminiMaskNoKey: '当前状态：未配置 Key', geminiMaskHasKey: '当前已配置：',
+                speedModeLabel: '生成模式', speedFast: '🍌2', speedQuality: '🍌Pro',
                 searchPlaceholder: '搜索资产名（如 desk / sofa / star）', loaded: '已加载', allAssets: '全部资产',
-                chooseImage: '上传替换素材', setDefault: '设为默认', confirmUpload: '确认并刷新',
-                frameW: '单帧宽', frameH: '单帧高', cols: '列', rows: '行', scalePct: '缩放%',
+                chooseImage: '上传替换素材', confirmUpload: '确认并刷新',
                 showCoords: '显示坐标', hideCoords: '隐藏坐标', moveView: '移动视野', lockView: '锁定视野',
-                memoTitle: '— 昨 日 小 记 —', guestTitle: '— 访 客 列 表 —', officeTitle: '海辛小龙虾的办公室',
+                memoTitle: '昨 日 小 记', guestTitle: '访 客 列 表', officeTitle: '海辛小龙虾的办公室',
                 loadingOffice: '正在加载 Star 的像素办公室...'
             },
             en: {
@@ -840,12 +866,12 @@
                 brokerGenerating: '🏘️ Generating room background from broker plan, please wait (20-90s)...',
                 brokerDone: '✅ Broker plan applied and background replaced, refreshing room...',
                 brokerMissingKey: '❌ Generation failed: missing GEMINI API key. Fill it below and retry.',
-                speedModeLabel: 'Render Mode', speedFast: '⚡ Fast', speedQuality: '✨ Quality',
+                geminiPanelTitle: '🔐 API Settings (collapsible)', geminiHint: 'Optional: set your image API key (base features work without it)', geminiMaskNoKey: 'Current: no key configured', geminiMaskHasKey: 'Configured key:',
+                speedModeLabel: 'Render Mode', speedFast: '🍌2', speedQuality: '🍌Pro',
                 searchPlaceholder: 'Search assets (desk / sofa / star)', loaded: 'Loaded', allAssets: 'All Assets',
-                chooseImage: 'Upload Replacement Asset', setDefault: 'Set Default', confirmUpload: 'Confirm & Refresh',
-                frameW: 'Frame W', frameH: 'Frame H', cols: 'Cols', rows: 'Rows', scalePct: 'Scale%',
+                chooseImage: 'Upload Replacement Asset', confirmUpload: 'Confirm & Refresh',
                 showCoords: 'Show Coords', hideCoords: 'Hide Coords', moveView: 'Pan View', lockView: 'Lock View',
-                memoTitle: '— YESTERDAY NOTES —', guestTitle: '— VISITOR LIST —', officeTitle: 'Haixin Lobster Office',
+                memoTitle: 'YESTERDAY NOTES', guestTitle: 'VISITOR LIST', officeTitle: 'Haixin Lobster Office',
                 loadingOffice: 'Loading Star’s pixel office...'
             },
             ja: {
@@ -860,12 +886,12 @@
                 brokerGenerating: '🏘️ 仲介プランで背景を生成中（20〜90秒）...',
                 brokerDone: '✅ 仲介プランを適用して背景を更新しました。部屋を更新中...',
                 brokerMissingKey: '❌ 生成失敗：GEMINI APIキーが未設定です。下で入力して保存してください。',
-                speedModeLabel: '生成モード', speedFast: '⚡ 高速', speedQuality: '✨ 高品質',
+                geminiPanelTitle: '🔐 API設定（折りたたみ）', geminiHint: '任意：画像生成APIキーを設定（未設定でも基本機能は利用可）', geminiMaskNoKey: '現在：キー未設定', geminiMaskHasKey: '設定済みキー：',
+                speedModeLabel: '生成モード', speedFast: '🍌2', speedQuality: '🍌Pro',
                 searchPlaceholder: 'アセット検索（desk / sofa / star）', loaded: '読み込み済み', allAssets: '全アセット',
-                chooseImage: '差し替え素材をアップロード', setDefault: 'デフォルト化', confirmUpload: '確定して更新',
-                frameW: 'フレーム幅', frameH: 'フレーム高', cols: '列', rows: '行', scalePct: '拡大率%',
+                chooseImage: '差し替え素材をアップロード', confirmUpload: '確定して更新',
                 showCoords: '座標表示', hideCoords: '座標非表示', moveView: '視点移動', lockView: '視点固定',
-                memoTitle: '— 昨日のメモ —', guestTitle: '— 訪問者リスト —', officeTitle: 'ハイシン・ロブスターのオフィス',
+                memoTitle: '昨日のメモ', guestTitle: '訪問者リスト', officeTitle: 'ハイシン・ロブスターのオフィス',
                 loadingOffice: 'Star のピクセルオフィスを読み込み中...'
             }
         };
@@ -930,17 +956,13 @@
             const speedLbl = document.getElementById('speed-mode-label'); if (speedLbl) speedLbl.textContent = t('speedModeLabel');
             const speedFastBtn = document.getElementById('speed-fast-btn'); if (speedFastBtn) speedFastBtn.textContent = t('speedFast');
             const speedQualityBtn = document.getElementById('speed-quality-btn'); if (speedQualityBtn) speedQualityBtn.textContent = t('speedQuality');
+            const geminiPanelSummary = document.getElementById('gemini-panel-summary'); if (geminiPanelSummary) geminiPanelSummary.textContent = t('geminiPanelTitle');
+            const geminiHint = document.getElementById('gemini-config-hint'); if (geminiHint) geminiHint.textContent = t('geminiHint');
 
             setPh('asset-search', 'searchPlaceholder');
 
             setText('asset-choose-btn', 'chooseImage');
-            setText('asset-set-default-btn', 'setDefault');
             setText('asset-commit-refresh-btn', 'confirmUpload');
-            setPh('asset-frame-w', 'frameW');
-            setPh('asset-frame-h', 'frameH');
-            setPh('asset-cols', 'cols');
-            setPh('asset-rows', 'rows');
-            setPh('asset-scale', 'scalePct');
 
             const memoTitle = document.getElementById('memo-title');
             if (memoTitle) memoTitle.textContent = t('memoTitle');
@@ -1132,17 +1154,15 @@
         let sceneAssetItems = [];
         let selectedAssetInfo = null;
         let assetThumbTimers = [];
-        let assetVisibility = (() => {
-            try { return JSON.parse(localStorage.getItem('assetVisibility') || '{}') || {}; }
-            catch (e) { return {}; }
-        })();
+
         // 坐标以服务端为准；清理历史本地缓存，避免把素材挪飞
         let assetPositionOverrides = {};
         let roomLoadingTimer = null;
         let roomLoadingIndex = 0;
         let roomLoadingEmojiIndex = 0;
 
-        let speedMode = localStorage.getItem('speedMode') || 'fast';
+        // 默认走更稳的模型档（quality），避免部分通道不支持 fast 模型时报错
+        let speedMode = localStorage.getItem('speedMode') || 'quality';
         function setSpeedMode(mode) {
             speedMode = (mode === 'quality') ? 'quality' : 'fast';
             try { localStorage.setItem('speedMode', speedMode); } catch(e) {}
@@ -1245,6 +1265,83 @@
             return file.replace(/\.[^.]+$/, '');
         }
 
+        function getAssetDisplayName(path) {
+            const stem = toAssetStem(path);
+            const lang = (uiLang || 'zh');
+            const nameMap = {
+                zh: {
+                    'star-idle-spritesheet': '主角·待命状态',
+                    'star-working-spritesheet-grid': '主角·工作状态',
+                    'sync-animation': '主角·同步状态',
+                    'sync-animation-spritesheet-grid': '主角·同步状态',
+                    'error-bug-spritesheet-grid': '主角·报错状态',
+                    'cats-spritesheet': '随机猫猫',
+                    'coffee-machine-spritesheet': '咖啡机动画',
+                    'posters-spritesheet': '随机海报',
+                    'serverroom-spritesheet': '服务器房动画',
+                    'plants-spritesheet': '随机绿植',
+                    'flowers-bloom-v2': '随机花朵',
+                    'office_bg_small': '办公室背景',
+                    'memo-bg': '昨日小记底图',
+                    'desk-v3': '办公桌',
+                    'desk': '办公桌（旧）',
+                    'guest_anim_1': '访客动画 1',
+                    'guest_anim_2': '访客动画 2',
+                    'guest_anim_3': '访客动画 3',
+                    'guest_anim_4': '访客动画 4',
+                    'guest_anim_5': '访客动画 5',
+                    'guest_anim_6': '访客动画 6'
+                },
+                en: {
+                    'star-idle-spritesheet': 'Main · Idle',
+                    'star-working-spritesheet-grid': 'Main · Working',
+                    'sync-animation': 'Main · Syncing',
+                    'sync-animation-spritesheet-grid': 'Main · Syncing',
+                    'error-bug-spritesheet-grid': 'Main · Error',
+                    'cats-spritesheet': 'Random Cats',
+                    'coffee-machine-spritesheet': 'Coffee Machine',
+                    'posters-spritesheet': 'Random Posters',
+                    'serverroom-spritesheet': 'Server Room',
+                    'plants-spritesheet': 'Random Plants',
+                    'flowers-bloom-v2': 'Random Flowers',
+                    'office_bg_small': 'Office Background',
+                    'memo-bg': 'Memo Background',
+                    'desk-v3': 'Desk',
+                    'desk': 'Desk (Old)',
+                    'guest_anim_1': 'Guest Animation 1',
+                    'guest_anim_2': 'Guest Animation 2',
+                    'guest_anim_3': 'Guest Animation 3',
+                    'guest_anim_4': 'Guest Animation 4',
+                    'guest_anim_5': 'Guest Animation 5',
+                    'guest_anim_6': 'Guest Animation 6'
+                },
+                ja: {
+                    'star-idle-spritesheet': 'メイン・待機状態',
+                    'star-working-spritesheet-grid': 'メイン・作業状態',
+                    'sync-animation': 'メイン・同期状態',
+                    'sync-animation-spritesheet-grid': 'メイン・同期状態',
+                    'error-bug-spritesheet-grid': 'メイン・エラー状態',
+                    'cats-spritesheet': 'ランダム猫',
+                    'coffee-machine-spritesheet': 'コーヒーマシン',
+                    'posters-spritesheet': 'ランダムポスター',
+                    'serverroom-spritesheet': 'サーバールーム',
+                    'plants-spritesheet': 'ランダム植物',
+                    'flowers-bloom-v2': 'ランダム花',
+                    'office_bg_small': 'オフィス背景',
+                    'memo-bg': 'メモ背景',
+                    'desk-v3': 'デスク',
+                    'desk': 'デスク（旧）',
+                    'guest_anim_1': '訪客アニメ 1',
+                    'guest_anim_2': '訪客アニメ 2',
+                    'guest_anim_3': '訪客アニメ 3',
+                    'guest_anim_4': '訪客アニメ 4',
+                    'guest_anim_5': '訪客アニメ 5',
+                    'guest_anim_6': '訪客アニメ 6'
+                }
+            };
+            const langMap = nameMap[lang] || nameMap.zh;
+            return langMap[stem] || stem;
+        }
 
         function pathToTextureCandidates(path) {
             const file = (path || '').split('/').pop() || '';
@@ -1259,12 +1356,12 @@
                 'serverroom-spritesheet': 'serverroom',
                 'error-bug-spritesheet-grid': 'error_bug',
                 'cats-spritesheet': 'cats',
-                'desk-v2': 'desk_v2',
+                'desk-v3': 'desk_v2',
                 'desk': 'desk',
                 'star-working-spritesheet-grid': 'star_working',
                 'sync-animation-spritesheet-grid': 'sync_anim',
                 'memo-bg': 'memo_bg',
-                'flowers-spritesheet': 'flowers',
+                'flowers-bloom-v2': 'flowers',
             };
             const cands = [];
             if (map[stem]) cands.push(map[stem]);
@@ -1297,12 +1394,12 @@
                 serverroom: 'serverroom-spritesheet',
                 error_bug: 'error-bug-spritesheet-grid',
                 cats: 'cats-spritesheet',
-                desk_v2: 'desk-v2',
+                desk_v2: 'desk-v3',
                 desk: 'desk',
                 star_working: 'star-working-spritesheet-grid',
                 sync_anim: 'sync-animation-spritesheet-grid',
                 memo_bg: 'memo-bg',
-                flowers: 'flowers-spritesheet',
+                flowers: 'flowers-bloom-v2',
             };
             const stem = keyToStem[key] || key.replace(/_/g, '-');
             const cands = assetListData.filter(it => (it.path || '').includes(stem + '.'));
@@ -1397,51 +1494,6 @@
 
         function saveAssetPositionOverrides() { /* deprecated: backend only */ }
 
-        async function applyAssetPosition() {
-            const path = selectedAssetInfo?.path || '';
-            const out = document.getElementById('asset-upload-result');
-            if (!path) {
-                if (out) out.textContent = '请先选中一个资产';
-                return;
-            }
-            const sprite = mapAssetPathToSprite(path);
-            const x = Number(document.getElementById('asset-pos-x')?.value || NaN);
-            const y = Number(document.getElementById('asset-pos-y')?.value || NaN);
-            const scalePct = Number(document.getElementById('asset-scale')?.value || 100);
-            if (!Number.isFinite(x) || !Number.isFinite(y)) {
-                if (out) out.textContent = '请输入有效的 X/Y 坐标';
-                return;
-            }
-            const scale = Number.isFinite(scalePct) && scalePct > 0 ? (scalePct / 100) : 1;
-
-            if (sprite) {
-                sprite.x = x;
-                sprite.y = y;
-                if (sprite.setScale) sprite.setScale(scale);
-                drawSelectionBoxOnScene(path);
-                highlightSpriteByAssetPath(path);
-            }
-
-            const texKey = sprite?.texture?.key;
-            const persistKey = path;
-            if (persistKey) {
-                assetPositionOverrides[persistKey] = { x, y, scale };
-                try {
-                    await fetch('/assets/positions', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ key: persistKey, x, y, scale, textureKey: texKey || null, stem: toAssetStem(persistKey) })
-                    });
-                } catch (e) {
-                    console.warn('坐标写入后端失败，已保留本地', e);
-                }
-            }
-
-            if (out) out.textContent = sprite
-                ? `✅ 已应用并写入后端：(${Math.round(x)}, ${Math.round(y)}), 缩放 ${Math.round(scale*100)}%`
-                : `✅ 已写入后端（当前画面无该对象，刷新或切换场景后生效）：(${Math.round(x)}, ${Math.round(y)}), 缩放 ${Math.round(scale*100)}%`;
-        }
-
         async function applySavedPositionOverrides() {
             try {
                 // 优先：后端持久化坐标；回退：后端默认坐标；最后：本地内存覆盖
@@ -1507,14 +1559,7 @@
             clearAssetSelectionUI();
             const out = document.getElementById('asset-upload-result');
             if (out) out.textContent = '';
-            if (resetInputs) {
-                const xInput = document.getElementById('asset-pos-x');
-                const yInput = document.getElementById('asset-pos-y');
-                const sInput = document.getElementById('asset-scale');
-                if (xInput) xInput.value = '';
-                if (yInput) yInput.value = '';
-                if (sInput) sInput.value = '100';
-            }
+
             updateAssetConfirmButtonState();
         }
 
@@ -1533,74 +1578,13 @@
 
         function updateAssetConfirmButtonState() {
             const btn = document.getElementById('asset-commit-refresh-btn');
-            const btnDefault = document.getElementById('asset-set-default-btn');
             const panel = document.getElementById('asset-upload-panel');
-            // 只要选中了资产就允许确认并刷新（可仅做坐标写入）
             const can = !!(selectedAssetInfo && selectedAssetInfo.path);
             if (panel) panel.classList.toggle('active', can);
             if (btn) {
                 btn.disabled = !can;
                 btn.style.opacity = can ? '1' : '.55';
             }
-            if (btnDefault) {
-                btnDefault.disabled = !can;
-                btnDefault.style.opacity = can ? '1' : '.55';
-            }
-        }
-
-        function fillAssetUploadParamsFromSelection(path) {
-            const wInput = document.getElementById('asset-frame-w');
-            const hInput = document.getElementById('asset-frame-h');
-            const cInput = document.getElementById('asset-cols');
-            const rInput = document.getElementById('asset-rows');
-            if (!wInput || !hInput || !cInput || !rInput) return;
-
-            // 优先用当前场景实际帧尺寸
-            const liveFrame = getLiveFrameSizeByAssetPath(path);
-            if (liveFrame) {
-                wInput.value = String(Math.round(liveFrame.w));
-                hInput.value = String(Math.round(liveFrame.h));
-            } else if (selectedAssetInfo?.width && selectedAssetInfo?.height) {
-                // 兜底：若是精灵表，默认猜 4x4
-                const sw = Number(selectedAssetInfo.width);
-                const sh = Number(selectedAssetInfo.height);
-                wInput.value = String(Math.max(1, Math.round(sw / 4)));
-                hInput.value = String(Math.max(1, Math.round(sh / 4)));
-            }
-
-            cInput.value = '';
-            rInput.value = '';
-        }
-
-        function refreshAssetPositionInputs(path) {
-            const xInput = document.getElementById('asset-pos-x');
-            const yInput = document.getElementById('asset-pos-y');
-            const sInput = document.getElementById('asset-scale');
-            if (!xInput || !yInput || !sInput) return;
-
-            // 先读后端保存值（相当于读配置）
-            const key = path;
-            const cfg = (assetPositionOverrides && assetPositionOverrides[key]) ? assetPositionOverrides[key] : null;
-            if (cfg) {
-                xInput.value = String(Math.round(Number(cfg.x || 0)));
-                yInput.value = String(Math.round(Number(cfg.y || 0)));
-                const sc = Number(cfg.scale || 1);
-                sInput.value = String(Math.round(sc * 100));
-                return;
-            }
-
-            // 再读当前场景对象
-            const sprite = mapAssetPathToSprite(path);
-            if (!sprite) {
-                xInput.value = '';
-                yInput.value = '';
-                sInput.value = '100';
-                return;
-            }
-            xInput.value = String(Math.round(Number(sprite.x || 0)));
-            yInput.value = String(Math.round(Number(sprite.y || 0)));
-            const sc = Number(sprite.scaleX || 1);
-            sInput.value = String(Math.round(sc * 100));
         }
 
         function selectAssetInDrawer(path) {
@@ -1611,28 +1595,18 @@
             }
             selectedAssetInfo = assetListData.find(x => x.path === path) || null;
             updateActiveAssetItem(path);
-            const ok = applyScenePreview(path, null);
-            fillAssetUploadParamsFromSelection(path);
-            refreshAssetPositionInputs(path);
+            const ok = applyScenePreview(path);
+
             const out = document.getElementById('asset-upload-result');
-            if (out) out.textContent = ok ? `已选中：${path}` : `已选中：${path}（当前画面里没有这个对象；可仅保存参数，或切到“已加载”再选）`;
+            if (out) out.textContent = ok
+                ? `已选中：${path}（请上传替换素材，然后点击“确认并刷新”）`
+                : `已选中：${path}（当前画面里没有这个对象，请直接上传替换素材并确认刷新）`;
             updateAssetConfirmButtonState();
         }
 
         function clearAssetThumbTimers() {
             assetThumbTimers.forEach(t => clearInterval(t));
             assetThumbTimers = [];
-        }
-
-        function saveAssetVisibility() {
-            try { localStorage.setItem('assetVisibility', JSON.stringify(assetVisibility || {})); } catch (e) {}
-        }
-
-        function setAssetVisible(path, visible) {
-            assetVisibility[path] = !!visible;
-            saveAssetVisibility();
-            const sprite = mapAssetPathToSprite(path);
-            if (sprite && sprite.setVisible) sprite.setVisible(!!visible);
         }
 
         function inferSpritesheetFrameMetaByPath(path) {
@@ -1661,7 +1635,7 @@
                 [/star-idle-spritesheet\.webp$/, 256, 256],
                 [/sync-animation-spritesheet-grid\.webp$/, 256, 256],
                 [/error-bug-spritesheet-grid\.webp$/, 220, 220],
-                [/flowers-spritesheet\.webp$/, 128, 128],
+                [/flowers-bloom-v2\.webp$/, 128, 128],
                 [/plants-spritesheet\.webp$/, 160, 160]
             ];
             for (const [re, fw, fh] of hints) {
@@ -1750,9 +1724,26 @@
             // 统一显示后端全部资产（不再区分已加载/全部）
             const baseRows = assetListData.map(it => ({ ...it, key: '' }));
 
+            const statePriority = [
+                'star-idle-spritesheet.webp',
+                'star-working-spritesheet-grid.webp',
+                'sync-animation-spritesheet-grid.webp',
+                'error-bug-spritesheet-grid.webp'
+            ];
+            const assetRank = (path='') => {
+                const p = (path || '').toLowerCase();
+                const idx = statePriority.findIndex(x => p.endsWith(x));
+                if (idx >= 0) return idx; // 0~3: 四个主状态最前
+                if (p.includes('guest_anim_')) return 999; // guest 动画放最后
+                return 100;
+            };
             const rows = baseRows
                 .filter(it => !q || (it.path || '').toLowerCase().includes(q) || (it.key || '').toLowerCase().includes(q))
-                .sort((a,b)=> (a.path || '').localeCompare(b.path || ''));
+                .sort((a,b)=> {
+                    const ra = assetRank(a.path), rb = assetRank(b.path);
+                    if (ra !== rb) return ra - rb;
+                    return (a.path || '').localeCompare(b.path || '');
+                });
 
             clearAssetThumbTimers();
 
@@ -1764,16 +1755,13 @@
             list.innerHTML = rows.map(it => {
                 const isActive = ((selectedAssetInfo && selectedAssetInfo.path) ? selectedAssetInfo.path : '') === it.path;
                 const reso = (it.width && it.height) ? `${it.width}×${it.height}` : '-';
+                const displayName = getAssetDisplayName(it.path || '');
                 const thumbId = `asset-thumb-canvas-${(it.path || '').replace(/[^a-zA-Z0-9]/g, '_')}`;
-                const visible = assetVisibility[it.path] !== false;
                 return `<div class="asset-item ${isActive ? 'active' : ''}" data-path="${it.path}" onclick="selectAssetInDrawer('${(it.path || '').replace(/'/g, "\\'")}')">
                     <canvas id="${thumbId}" class="asset-thumb" width="56" height="56"></canvas>
                     <div class="asset-meta">
                         <div class="asset-path">${it.path}</div>
-                        <div class="asset-sub">${reso}</div>
-                    </div>
-                    <div class="asset-inline-switch" title="可见性">
-                        <input type="checkbox" ${visible ? 'checked' : ''} onchange="event.stopPropagation(); setAssetVisible('${(it.path || '').replace(/'/g, "\\'")}', this.checked)" />
+                        <div class="asset-sub">${displayName} ｜ ${reso}</div>
                     </div>
                 </div>`;
             }).join('');
@@ -1793,11 +1781,6 @@
                 };
                 img.src = `/static/${it.path}?t=${Date.now()}`;
             });
-        }
-
-        function setAssetFilterMode(mode) {
-            assetFilterMode = 'all';
-            renderAssetDrawerList();
         }
 
         async function refreshAssetDrawerList() {
@@ -1822,7 +1805,7 @@
 
                 if (selectedPath) {
                     updateActiveAssetItem(selectedPath);
-                    applyScenePreview(selectedPath, null);
+                    applyScenePreview(selectedPath);
                 }
             } catch (e) {
                 console.error('加载资产列表失败', e);
@@ -1838,7 +1821,7 @@
                 const f = input.files && input.files[0];
                 if (!f) {
                     const targetPath = (selectedAssetInfo && selectedAssetInfo.path) ? selectedAssetInfo.path : '';
-                    out.textContent = targetPath ? `已选中：${targetPath}（可只填坐标后确认并刷新）` : '';
+                    out.textContent = targetPath ? `已选中：${targetPath}（请上传替换素材，然后点击“确认并刷新”）` : '';
                     updateAssetConfirmButtonState();
                     return;
                 }
@@ -1939,51 +1922,16 @@
             const isAnimInput = nameLower.endsWith('.gif') || nameLower.endsWith('.webp');
             const isSheetTarget = !!inferSpritesheetFrameMetaByPath(path);
 
-            const inputFw = Number(document.getElementById('asset-frame-w')?.value || 0);
-            const inputFh = Number(document.getElementById('asset-frame-h')?.value || 0);
-            const inputCols = Number(document.getElementById('asset-cols')?.value || 0);
-            const inputRows = Number(document.getElementById('asset-rows')?.value || 0);
-
             if (isSheetTarget) {
                 fd.append('auto_spritesheet', '1');
-
-                let fw = 0, fh = 0;
-                if (inputFw > 0 && inputFh > 0) {
-                    fw = inputFw; fh = inputFh;
-                } else {
-                    const liveFrame = getLiveFrameSizeByAssetPath(path);
-                    if (liveFrame) { fw = Math.round(liveFrame.w); fh = Math.round(liveFrame.h); }
-                }
-
-                // 行列只作为辅助显示，不反推覆盖单帧尺寸（避免你手填 frame 后被旧尺寸覆盖）
-
-                if (fw > 0 && fh > 0) {
-                    fd.append('frame_w', String(fw));
-                    fd.append('frame_h', String(fh));
-                    fd.append('preserve_original', '0');
-                } else if (isAnimInput) {
+                // 全自动：后端识别并切帧
+                if (isAnimInput) {
                     fd.append('preserve_original', '1');
                 } else {
+                    // 静态图兜底切法
                     fd.append('frame_w', '64');
                     fd.append('frame_h', '64');
                     fd.append('preserve_original', '0');
-                }
-
-                if (inputCols > 0) fd.append('cols', String(inputCols));
-                if (inputRows > 0) fd.append('rows', String(inputRows));
-
-                // 前端先做一次显式校验，减少“点了失败但看不懂”的情况
-                if (selectedAssetInfo?.width && selectedAssetInfo?.height && inputCols > 0 && inputRows > 0) {
-                    const sw = Number(selectedAssetInfo.width);
-                    const sh = Number(selectedAssetInfo.height);
-                    if (fw > 0 && fh > 0) {
-                        const expW = fw * inputCols;
-                        const expH = fh * inputRows;
-                        if (expW !== sw || expH !== sh) {
-                            out.textContent = `❌ 参数不匹配：当前资产是 ${sw}x${sh}，你填的是 ${fw}x${fh} × ${inputCols}x${inputRows} (= ${expW}x${expH})`;
-                            return false;
-                        }
-                    }
                 }
                 fd.append('pixel_art', '1');
             }
@@ -2013,18 +1961,9 @@
             const okUpload = await commitAssetUpdate();
             if (!okUpload) return;
 
-            // 坐标输入可选；填了就写后端并应用
-            const xVal = document.getElementById('asset-pos-x')?.value;
-            const yVal = document.getElementById('asset-pos-y')?.value;
-            const hasPos = (xVal || '').trim() !== '' && (yVal || '').trim() !== '';
-            if (hasPos) {
-                await applyAssetPosition();
-            }
-
             if (out) {
-                if (!hasFile && hasPos) out.textContent = '✅ 已写入坐标并刷新';
-                else if (hasFile && !hasPos) out.textContent += ' ｜ ✅ 已上传并刷新';
-                else out.textContent += ' ｜ ✅ 已确认并刷新';
+                if (hasFile) out.textContent += ' ｜ ✅ 已上传并刷新';
+                else out.textContent = '✅ 已确认并刷新';
             }
 
             // 刷新前关闭侧边栏，行为与地图替换一致
@@ -2035,48 +1974,9 @@
             setTimeout(() => window.location.reload(), 400);
         }
 
-        async function setAssetAsDefault() {
-            const path = selectedAssetInfo?.path || '';
-            const out = document.getElementById('asset-upload-result');
-            if (!path) {
-                if (out) out.textContent = '请先选中一个资产';
-                return;
-            }
-            const x = Number(document.getElementById('asset-pos-x')?.value || NaN);
-            const y = Number(document.getElementById('asset-pos-y')?.value || NaN);
-            const scalePct = Number(document.getElementById('asset-scale')?.value || 100);
-            if (!Number.isFinite(x) || !Number.isFinite(y)) {
-                if (out) out.textContent = '请输入有效的 X/Y 坐标';
-                return;
-            }
-            const scale = Number.isFinite(scalePct) && scalePct > 0 ? (scalePct / 100) : 1;
-            try {
-                const res = await fetch('/assets/defaults', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key: path, x, y, scale })
-                });
-                const data = await res.json();
-                if (!data.ok) {
-                    if (out) out.textContent = `❌ 设为默认失败：${data.msg || res.status}`;
-                    return;
-                }
-                // 设为默认时同步更新当前持久化值，避免“默认已改但当前场景仍被旧覆盖”
-                try {
-                    await fetch('/assets/positions', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ key: path, x, y, scale })
-                    });
-                } catch (e) {}
-
-                if (out) out.textContent = `✅ 已设为默认：(${Math.round(x)}, ${Math.round(y)}), 缩放 ${Math.round(scale*100)}%`;
-            } catch (e) {
-                if (out) out.textContent = `❌ 设为默认失败：${e}`;
-            }
-        }
-
 function toggleBrokerPanel() {
+            const btn = document.querySelector('#asset-broker-row .btn-broker');
+            flashButtonActive(btn);
             const p = document.getElementById('asset-broker-panel');
             if (!p) return;
             p.classList.toggle('open');
@@ -2221,10 +2121,16 @@ function toggleBrokerPanel() {
                 if (data && data.ok) {
                     window.geminiConfig = {
                         hasKey: !!data.has_api_key,
-                        model: data.gemini_model || 'nanobanana-pro'
+                        model: data.gemini_model || 'gemini-3.1-flash-image-preview'
                     };
                     const box = document.getElementById('asset-gemini-config');
-                    if (box) box.style.display = data.has_api_key ? 'none' : 'block';
+                    if (box) box.style.display = 'block';
+                    const ms = document.getElementById('gemini-mask-status');
+                    if (ms) {
+                        ms.textContent = data.has_api_key
+                            ? `${t('geminiMaskHasKey')} ${data.api_key_masked || ''}`
+                            : t('geminiMaskNoKey');
+                    }
                 }
             } catch (e) {}
         }
@@ -2241,7 +2147,7 @@ function toggleBrokerPanel() {
                 const res = await fetch('/config/gemini', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ api_key: key, model: 'nanobanana-pro' })
+                    body: JSON.stringify({ api_key: key, model: 'gemini-3.1-flash-image-preview' })
                 });
                 const data = await res.json();
                 if (!data.ok) {
@@ -2257,7 +2163,14 @@ function toggleBrokerPanel() {
             }
         }
 
+        function flashButtonActive(el, ms = 180) {
+            if (!el) return;
+            el.classList.add('is-active');
+            setTimeout(() => el.classList.remove('is-active'), ms);
+        }
+
         async function generateCustomRpgBackground() {
+            flashButtonActive(document.querySelector('#asset-broker-row .btn-broker'));
             const out = document.getElementById('asset-move-result') || document.getElementById('asset-upload-result');
             const prompt = (document.getElementById('asset-broker-prompt')?.value || '').trim();
             if (!prompt) {
@@ -2279,6 +2192,12 @@ function toggleBrokerPanel() {
                         out.textContent = t('brokerMissingKey');
                         const box = document.getElementById('asset-gemini-config');
                         if (box) box.style.display = 'block';
+                    } else if (data.code === 'API_KEY_REVOKED_OR_LEAKED') {
+                        out.textContent = '❌ 当前 API Key 已失效/疑似泄露，请更换新 Key 后重试';
+                        const box = document.getElementById('asset-gemini-config');
+                        if (box) box.style.display = 'block';
+                    } else if (data.code === 'MODEL_NOT_AVAILABLE') {
+                        out.textContent = '❌ 当前模型在此通道不可用，请切换可用模型后重试';
                     } else {
                         out.textContent = `❌ 生成失败：${data.msg || res.status}`;
                     }
@@ -2295,6 +2214,7 @@ function toggleBrokerPanel() {
         }
 
         async function generateRpgBackground() {
+            flashButtonActive(document.getElementById('btn-move-house'));
             const out = document.getElementById('asset-move-result') || document.getElementById('asset-upload-result');
             // 点击即刻显示遮罩，先于任何网络调用
             showRoomLoadingOverlay();
@@ -2311,6 +2231,12 @@ function toggleBrokerPanel() {
                         out.textContent = t('brokerMissingKey');
                         const box = document.getElementById('asset-gemini-config');
                         if (box) box.style.display = 'block';
+                    } else if (data.code === 'API_KEY_REVOKED_OR_LEAKED') {
+                        out.textContent = '❌ 当前 API Key 已失效/疑似泄露，请更换新 Key 后重试';
+                        const box = document.getElementById('asset-gemini-config');
+                        if (box) box.style.display = 'block';
+                    } else if (data.code === 'MODEL_NOT_AVAILABLE') {
+                        out.textContent = '❌ 当前模型在此通道不可用，请切换可用模型后重试';
                     } else {
                         out.textContent = `❌ 生成失败：${data.msg || res.status}`;
                     }
@@ -2327,6 +2253,7 @@ function toggleBrokerPanel() {
         }
 
         async function restoreHomeBackground() {
+            flashButtonActive(document.getElementById('btn-back-home'));
             const out = document.getElementById('asset-move-result') || document.getElementById('asset-upload-result');
             // 点击即刻显示遮罩，先于任何网络调用
             showRoomLoadingOverlay();
@@ -2958,7 +2885,7 @@ function toggleBrokerPanel() {
                 const res = await fetch('/assets/list?t=' + Date.now(), { cache: 'no-store' });
                 const data = await res.json();
                 if (data && data.ok && Array.isArray(data.items)) {
-                    const flowerItem = data.items.find(it => (it.path || '').toLowerCase().includes('flowers-spritesheet'));
+                    const flowerItem = data.items.find(it => (it.path || '').toLowerCase().includes('flowers-bloom-v2'));
                     if (flowerItem && Number(flowerItem.width) > 0 && Number(flowerItem.height) > 0) {
                         const w = Number(flowerItem.width);
                         const h = Number(flowerItem.height);
@@ -3016,7 +2943,7 @@ function toggleBrokerPanel() {
             this.load.spritesheet('error_bug', '/static/error-bug-spritesheet-grid.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 220, frameHeight: 220 });
 
             // 运行时 Gemini 配置（用于搬家/中介生图）
-            this.geminiConfig = { hasKey: false, model: 'nanobanana-pro' };
+            this.geminiConfig = { hasKey: false, model: 'gemini-3.1-flash-image-preview' };
 
             // Cat spritesheet: 160x160, 4x4=16 cats
             this.load.spritesheet('cats', '/static/cats-spritesheet.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 160, frameHeight: 160 });
@@ -3028,15 +2955,15 @@ function toggleBrokerPanel() {
             this.load.spritesheet('star_working', '/static/star-working-spritesheet-grid.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 300, frameHeight: 300 });
 
             // Sync state animation (256x256, 53 frames)
-            this.load.spritesheet('sync_anim', '/static/sync-animation-spritesheet-grid.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 256, frameHeight: 256 });
+            this.load.spritesheet('sync_anim', '/static/sync-animation.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 256, frameHeight: 256 });
 
             // Memo background image
             // memo 底图固定走 png，避免某些端 webp 透明通道异常导致“底图丢失”
             this.load.image('memo_bg', '/static/memo-bg.webp?v={{VERSION_TIMESTAMP}}');
             // Desk v2 (webp only)
-            this.load.image('desk_v2', '/static/desk-v2.webp?v={{VERSION_TIMESTAMP}}');
+            this.load.image('desk_v2', '/static/desk-v3.webp?v={{VERSION_TIMESTAMP}}');
             // Flower spritesheet (65x65, 16 frames)
-            this.load.spritesheet('flowers', '/static/flowers-spritesheet.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: FLOWERS_FRAME_W, frameHeight: FLOWERS_FRAME_H });
+            this.load.spritesheet('flowers', '/static/flowers-bloom-v2.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: FLOWERS_FRAME_W, frameHeight: FLOWERS_FRAME_H });
 
             // Guest/Demo agent sprites
             this.load.spritesheet('guest_anim_1', '/static/guest_anim_1.webp?v={{VERSION_TIMESTAMP}}', { frameWidth: 32, frameHeight: 32 });
@@ -3104,9 +3031,10 @@ function toggleBrokerPanel() {
                 fontFamily: 'ArkPixel, monospace',
                 fontSize: '18px',
                 fill: '#ffd700',
-                fontWeight: 'bold',
+                fontWeight: '900',
+                fontStyle: 'bold',
                 stroke: '#000',
-                strokeThickness: 2
+                strokeThickness: 3
             }).setOrigin(0.5);
             // 牌匾两边加个小装饰（跟随牌匾居中）
             game.add.text(plaqueX - 190, plaqueY, '⭐', { fontFamily: 'ArkPixel, monospace', fontSize: '20px' }).setOrigin(0.5);
@@ -3122,7 +3050,7 @@ function toggleBrokerPanel() {
             // Expose to global for click handler
             window.plantSprite = plant;
             window.plantFrameCount = plantFrameCount;
-            if (assetVisibility['plants-spritesheet.webp'] === false) plant.setVisible(false);
+            
             plant.on('pointerdown', () => {
                 const next = Math.floor(Math.random() * window.plantFrameCount);
                 window.plantSprite.setFrame(next);
@@ -3135,7 +3063,7 @@ function toggleBrokerPanel() {
             plant2.setInteractive({ useHandCursor: true });
             // Expose to global for click handler
             window.plantSprite2 = plant2;
-            if (assetVisibility['plants-spritesheet.webp'] === false) plant2.setVisible(false);
+            
             plant2.on('pointerdown', () => {
                 const next = Math.floor(Math.random() * window.plantFrameCount);
                 window.plantSprite2.setFrame(next);
@@ -3148,30 +3076,30 @@ function toggleBrokerPanel() {
             plant3.setInteractive({ useHandCursor: true });
             // Expose to global for click handler
             window.plantSprite3 = plant3;
-            if (assetVisibility['plants-spritesheet.webp'] === false) plant3.setVisible(false);
+            
             plant3.on('pointerdown', () => {
                 const next = Math.floor(Math.random() * window.plantFrameCount);
                 window.plantSprite3.setFrame(next);
             });
 
             // Random poster at (252,66) (random frame from spritesheet)
-            const postersFrameCount = 32; // 640x1280 with 160x160 frames => 4x8 = 32
-            const randomPosterFrame = Math.floor(Math.random() * postersFrameCount);
+            const postersFrameCount = (this.textures.get('posters')?.frameTotal || 1) - 1;
+            const randomPosterFrame = Math.floor(Math.random() * Math.max(1, postersFrameCount));
             const poster = game.add.sprite(252, 66, 'posters', randomPosterFrame).setOrigin(0.5);
             poster.setDepth(4);
             poster.setInteractive({ useHandCursor: true });
             // Expose to global for click handler
             window.posterSprite = poster;
             window.posterFrameCount = postersFrameCount;
-            if (assetVisibility['posters-spritesheet.webp'] === false) poster.setVisible(false);
+            
             poster.on('pointerdown', () => {
                 const next = Math.floor(Math.random() * window.posterFrameCount);
                 window.posterSprite.setFrame(next);
             });
 
-            // Random cat at (94,557) (frame 0-15, 160x160 each)
-            const catsFrameCount = 16; // 4x4 grid
-            const randomCatFrame = Math.floor(Math.random() * catsFrameCount);
+            // Random cat at (94,557)
+            const catsFrameCount = (this.textures.get('cats')?.frameTotal || 1) - 1;
+            const randomCatFrame = Math.floor(Math.random() * Math.max(1, catsFrameCount));
             const cat = game.add.sprite(94, 557, 'cats', randomCatFrame).setOrigin(0.5);
             cat.setDepth(2000); // top layer
             cat.setInteractive({ useHandCursor: true });
@@ -3184,9 +3112,10 @@ function toggleBrokerPanel() {
             });
 
             // Coffee machine at (563,330)
+            const coffeeFrameMax = Math.max(0, (this.textures.get('coffee_machine')?.frameTotal || 1) - 2);
             this.anims.create({
                 key: 'coffee_machine',
-                frames: this.anims.generateFrameNumbers('coffee_machine', { start: 0, end: 95 }),
+                frames: this.anims.generateFrameNumbers('coffee_machine', { start: 0, end: coffeeFrameMax }),
                 frameRate: 12.5,
                 repeat: -1
             });
@@ -3195,9 +3124,10 @@ function toggleBrokerPanel() {
             coffeeMachine.anims.play('coffee_machine', true);
 
             // Server room animation
+            const serverFrameMax = Math.max(0, (this.textures.get('serverroom')?.frameTotal || 1) - 2);
             this.anims.create({
                 key: 'serverroom_on',
-                frames: this.anims.generateFrameNumbers('serverroom', { start: 0, end: 39 }),
+                frames: this.anims.generateFrameNumbers('serverroom', { start: 0, end: serverFrameMax }),
                 frameRate: 6,
                 repeat: -1
             });
@@ -3258,9 +3188,10 @@ function toggleBrokerPanel() {
             window.starWorking = starWorking;
 
             // Sync animation sprite at (1157,592)
+            const syncFrameMax = Math.max(1, (this.textures.get('sync_anim')?.frameTotal || 2) - 2);
             this.anims.create({
                 key: 'sync_anim',
-                frames: this.anims.generateFrameNumbers('sync_anim', { start: 1, end: 48 }),
+                frames: this.anims.generateFrameNumbers('sync_anim', { start: 1, end: syncFrameMax }),
                 frameRate: 12,
                 repeat: -1
             });
@@ -3276,6 +3207,7 @@ function toggleBrokerPanel() {
             statusText = document.getElementById('status-text');
             placeOverlayAndStatusAtCanvasBottomLeft();
             window.addEventListener('resize', placeOverlayAndStatusAtCanvasBottomLeft);
+            window.addEventListener('scroll', placeOverlayAndStatusAtCanvasBottomLeft, { passive: true });
             coordsOverlay = document.getElementById('coords-overlay');
             coordsDisplay = document.getElementById('coords-display');
             coordsToggle = document.getElementById('coords-toggle');
