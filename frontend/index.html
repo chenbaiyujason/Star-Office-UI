@@ -220,6 +220,9 @@
         .asset-meta { line-height: 1.45; }
         .asset-path { color:#d1fae5; word-break: break-all; }
         .asset-sub { color:#9ca3af; font-size:11px; }
+        #asset-upload-result { white-space: normal; line-height: 1.5; }
+        #asset-upload-result .hint-p { margin: 0 0 6px 0; }
+        #asset-upload-result .hint-p:last-child { margin-bottom: 0; }
         .asset-plus-box { width:100%; height:92px; border:2px dashed #4b5563; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:34px; cursor:pointer; user-select:none; }
         .asset-plus-box:hover { border-color:#22c55e; color:#22c55e; }
         .asset-preview-box { border:1px solid #374151; border-radius:8px; padding:6px; background:#0b1220; margin-bottom:8px; }
@@ -284,19 +287,31 @@
         }
         #asset-broker-actions { margin-top:8px; display:flex; justify-content:flex-end; }
         #asset-broker-actions button {
-            background:#22c55e; color:#052e16; border-color:#16a34a; font-weight:700;
+            background:#0ea5e9;
+            color:#e0f2fe;
+            border-color:#38bdf8;
+            font-weight:700;
+            font-size:12px;
+            padding:7px 10px;
+            min-width:112px;
+            text-align:center;
+            box-shadow: 0 2px 0 rgba(0,0,0,.25);
+            transition: transform .08s ease, filter .12s ease, box-shadow .12s ease;
         }
         #asset-move-row .btn-move:hover,
         #asset-move-row .btn-home:hover,
-        #asset-broker-row .btn-broker:hover {
+        #asset-broker-row .btn-broker:hover,
+        #asset-broker-actions button:hover {
             filter: brightness(1.06);
         }
         #asset-move-row .btn-move:active,
         #asset-move-row .btn-home:active,
         #asset-broker-row .btn-broker:active,
+        #asset-broker-actions button:active,
         #asset-move-row .btn-move.is-active,
         #asset-move-row .btn-home.is-active,
-        #asset-broker-row .btn-broker.is-active {
+        #asset-broker-row .btn-broker.is-active,
+        #asset-broker-actions button.is-active {
             transform: translateY(1px) scale(0.98);
             box-shadow: 0 1px 0 rgba(0,0,0,.35) inset;
             filter: brightness(0.92);
@@ -840,11 +855,12 @@
                 drawerTitle: '装修房间 · 资产侧边栏', drawerClose: '关闭',
                 authTitle: '请输入装修验证码', authPlaceholder: '输入验证码', authVerify: '验证',
                 btnMove: '🏠搬新家', btnHome: '🐚回老家', btnBroker: '找中介', btnBrokerGo: '听中介的',
-                brokerHint: '写你的风格主题（严格保持原始房间结构，只改变视觉风格）',
-                brokerPromptPh: '例如：像素风赛博东京夜景，霓虹灯、雨夜地面反光、蓝紫主色',
+                brokerHint: '你会给龙虾推荐什么样的房子',
+                brokerPromptPh: '例如：故宫主题、莫奈风格、地牢主题、兵马俑主题……',
                 brokerNeedPrompt: '请先输入中介方案描述',
                 brokerGenerating: '🏘️ 正在按中介方案生成底图，请稍候（约20-90秒）...',
                 brokerDone: '✅ 已按中介方案生成并替换底图，正在刷新房间...',
+                moveSuccess: '✅ 搬家成功！',
                 brokerMissingKey: '❌ 生图失败：缺少 GEMINI API Key，请在下方填写并保存后重试',
                 geminiPanelTitle: '🔐 API 设置（可折叠）', geminiHint: '可选：填写你的生图 API Key（留空不影响基础功能）', geminiMaskNoKey: '当前状态：未配置 Key', geminiMaskHasKey: '当前已配置：',
                 speedModeLabel: '生成模式', speedFast: '🍌2', speedQuality: '🍌Pro',
@@ -862,11 +878,12 @@
                 drawerTitle: 'Decorate Room · Asset Sidebar', drawerClose: 'Close',
                 authTitle: 'Enter Decor Passcode', authPlaceholder: 'Enter passcode', authVerify: 'Verify',
                 btnMove: '🏠 New Home', btnHome: '🐚 Go Home', btnBroker: 'Broker', btnBrokerGo: 'Follow Broker',
-                brokerHint: 'Describe your visual style (keep room structure unchanged, only change visual style)',
-                brokerPromptPh: 'e.g. pixel cyber Tokyo night, neon, rainy reflections, blue-purple palette',
+                brokerHint: 'What kind of house would you recommend for Lobster?',
+                brokerPromptPh: 'e.g. Forbidden City theme, Monet style, dungeon theme, Terracotta Warriors theme...',
                 brokerNeedPrompt: 'Please enter broker style prompt first',
                 brokerGenerating: '🏘️ Generating room background from broker plan, please wait (20-90s)...',
                 brokerDone: '✅ Broker plan applied and background replaced, refreshing room...',
+                moveSuccess: '✅ Move successful!',
                 brokerMissingKey: '❌ Generation failed: missing GEMINI API key. Fill it below and retry.',
                 geminiPanelTitle: '🔐 API Settings (collapsible)', geminiHint: 'Optional: set your image API key (base features work without it)', geminiMaskNoKey: 'Current: no key configured', geminiMaskHasKey: 'Configured key:',
                 speedModeLabel: 'Render Mode', speedFast: '🍌2', speedQuality: '🍌Pro',
@@ -884,11 +901,12 @@
                 drawerTitle: '部屋編集・アセットサイドバー', drawerClose: '閉じる',
                 authTitle: '編集パスコードを入力', authPlaceholder: 'パスコード入力', authVerify: '認証',
                 btnMove: '🏠引っ越し', btnHome: '🐚実家に戻る', btnBroker: '仲介', btnBrokerGo: '仲介に任せる',
-                brokerHint: '部屋構造は維持し、見た目スタイルのみ指定してください',
-                brokerPromptPh: '例：ピクセル調サイバー東京の夜、ネオン、雨の反射、青紫トーン',
+                brokerHint: 'ロブスターにはどんな家をおすすめしますか',
+                brokerPromptPh: '例：故宮テーマ、モネ風、ダンジョン風、兵馬俑テーマ…',
                 brokerNeedPrompt: '先に仲介プランの説明を入力してください',
                 brokerGenerating: '🏘️ 仲介プランで背景を生成中（20〜90秒）...',
                 brokerDone: '✅ 仲介プランを適用して背景を更新しました。部屋を更新中...',
+                moveSuccess: '✅ 引っ越し成功！',
                 brokerMissingKey: '❌ 生成失敗：GEMINI APIキーが未設定です。下で入力して保存してください。',
                 geminiPanelTitle: '🔐 API設定（折りたたみ）', geminiHint: '任意：画像生成APIキーを設定（未設定でも基本機能は利用可）', geminiMaskNoKey: '現在：キー未設定', geminiMaskHasKey: '設定済みキー：',
                 speedModeLabel: '生成モード', speedFast: '🍌2', speedQuality: '🍌Pro',
@@ -1465,12 +1483,15 @@
         function renderSelectedAssetGuidance(path, inScene = null) {
             const out = document.getElementById('asset-upload-result');
             if (!out) return;
-            if (!path) { out.textContent = ''; return; }
+            if (!path) { out.innerHTML = ''; return; }
             const displayName = getAssetDisplayName(path);
             const line1 = `📌 ${displayName}（${path}）`;
             const line2 = `💡 ${getAssetHelpText(path)}`;
             const line3 = (inScene === false) ? `⚠️ ${t('assetHintNotInScene')}` : '';
-            out.textContent = [line1, line2, line3].filter(Boolean).join('\n');
+            out.innerHTML = [line1, line2, line3]
+                .filter(Boolean)
+                .map(v => `<p class="hint-p">${v}</p>`)
+                .join('');
         }
 
         function pathToTextureCandidates(path) {
@@ -1962,10 +1983,15 @@
                     const inScene = !!mapAssetPathToSprite(targetPath);
                     const displayName = getAssetDisplayName(targetPath);
                     const hint = getAssetHelpText(targetPath);
-                    const warn = inScene ? '' : `\n⚠️ ${t('assetHintNotInScene')}`;
-                    out.textContent = `${pending}\n📌 ${displayName}（${targetPath}）\n💡 ${hint}${warn}`;
+                    const warn = inScene ? '' : `⚠️ ${t('assetHintNotInScene')}`;
+                    out.innerHTML = [
+                        `<p class="hint-p">${pending}</p>`,
+                        `<p class="hint-p">📌 ${displayName}（${targetPath}）</p>`,
+                        `<p class="hint-p">💡 ${hint}</p>`,
+                        warn ? `<p class="hint-p">${warn}</p>` : ''
+                    ].filter(Boolean).join('');
                 } else {
-                    out.textContent = pending;
+                    out.innerHTML = `<p class="hint-p">${pending}</p>`;
                 }
                 updateAssetConfirmButtonState();
             };
@@ -2248,6 +2274,11 @@ function toggleBrokerPanel() {
             return await refreshSceneObjectByAssetPath('office_bg_small.webp');
         }
 
+        function markMoveSuccess(outEl) {
+            if (outEl) outEl.textContent = t('moveSuccess');
+            try { setState('idle', t('moveSuccess').replace('✅ ', '')); } catch (e) {}
+        }
+
         async function ensureGeminiConfigLoaded() {
             try {
                 const authRes = await fetch('/assets/auth/status', { cache: 'no-store' });
@@ -2345,7 +2376,11 @@ function toggleBrokerPanel() {
                 }
                 out.textContent = t('brokerDone');
                 const ok = await refreshOfficeBackgroundOnly();
-                if (!ok) out.textContent = '✅ 已生成并替换底图（局部刷新失败，可手动刷新页面）';
+                if (ok) {
+                    markMoveSuccess(out);
+                } else {
+                    out.textContent = '✅ 已生成并替换底图（局部刷新失败，可手动刷新页面）';
+                }
             } catch (e) {
                 out.textContent = `❌ 生成失败：${e}`;
             } finally {
@@ -2384,7 +2419,11 @@ function toggleBrokerPanel() {
                 }
                 out.textContent = '✅ 已生成并替换底图，正在刷新房间...';
                 const ok = await refreshOfficeBackgroundOnly();
-                if (!ok) out.textContent = '✅ 已生成并替换底图（局部刷新失败，可手动刷新页面）';
+                if (ok) {
+                    markMoveSuccess(out);
+                } else {
+                    out.textContent = '✅ 已生成并替换底图（局部刷新失败，可手动刷新页面）';
+                }
             } catch (e) {
                 out.textContent = `❌ 生成失败：${e}`;
             } finally {
@@ -2407,7 +2446,11 @@ function toggleBrokerPanel() {
                 }
                 out.textContent = '✅ 已恢复初始底图';
                 const ok = await refreshOfficeBackgroundOnly();
-                if (!ok) out.textContent = '✅ 已恢复初始底图（局部刷新失败，可手动刷新页面）';
+                if (ok) {
+                    markMoveSuccess(out);
+                } else {
+                    out.textContent = '✅ 已恢复初始底图（局部刷新失败，可手动刷新页面）';
+                }
             } catch (e) {
                 out.textContent = `❌ 恢复失败：${e}`;
             } finally {
