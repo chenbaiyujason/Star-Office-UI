@@ -234,10 +234,11 @@
         #asset-move-row { justify-content: center; gap:12px; margin-bottom:0; }
         #asset-move-row .btn-move,
         #asset-move-row .btn-home,
-        #asset-broker-row .btn-broker {
+        #asset-broker-row .btn-broker,
+        #asset-manual-row .btn-diy {
             width:122px;
             height:42px;
-            padding:3px 8px 0;
+            padding:8px 8px 0;
             border:none;
             border-radius:0;
             background-color: transparent !important;
@@ -272,6 +273,12 @@
         #asset-broker-row .btn-broker {
             background-image:url('/static/btn-broker-sprite.png?v={{VERSION_TIMESTAMP}}');
         }
+        #asset-manual-row { justify-content:center; margin-top:8px; margin-bottom:0; }
+        #asset-manual-row .btn-diy {
+            background-image:url('/static/btn-diy-sprite.png?v={{VERSION_TIMESTAMP}}');
+        }
+        #asset-manual-panel { display:none; margin-top:8px; }
+        #asset-manual-panel.open { display:block; }
         #asset-broker-panel {
             display:none;
             margin-top:8px;
@@ -304,6 +311,7 @@
         #asset-move-row .btn-move:hover,
         #asset-move-row .btn-home:hover,
         #asset-broker-row .btn-broker:hover,
+        #asset-manual-row .btn-diy:hover,
         #asset-broker-actions button:hover {
             filter: brightness(1.06);
             background-color: transparent !important;
@@ -311,10 +319,12 @@
         #asset-move-row .btn-move:active,
         #asset-move-row .btn-home:active,
         #asset-broker-row .btn-broker:active,
+        #asset-manual-row .btn-diy:active,
         #asset-broker-actions button:active,
         #asset-move-row .btn-move.is-active,
         #asset-move-row .btn-home.is-active,
         #asset-broker-row .btn-broker.is-active,
+        #asset-manual-row .btn-diy.is-active,
         #asset-broker-actions button.is-active {
             transform: translateY(1px) scale(0.98);
             filter: brightness(0.96);
@@ -326,12 +336,15 @@
         #asset-move-row .btn-home:active,
         #asset-move-row .btn-home.is-active,
         #asset-broker-row .btn-broker:active,
-        #asset-broker-row .btn-broker.is-active {
+        #asset-broker-row .btn-broker.is-active,
+        #asset-manual-row .btn-diy:active,
+        #asset-manual-row .btn-diy.is-active {
             background-position:50% 0;
         }
         #asset-move-row .btn-move.is-done,
         #asset-move-row .btn-home.is-done,
-        #asset-broker-row .btn-broker.is-done {
+        #asset-broker-row .btn-broker.is-done,
+        #asset-manual-row .btn-diy.is-done {
             background-position:100% 0;
         }
 
@@ -806,6 +819,9 @@
                     <div class="asset-toolbar" id="asset-broker-row">
                         <button class="btn-broker" onclick="toggleBrokerPanel()">找中介</button>
                     </div>
+                    <div class="asset-toolbar" id="asset-manual-row">
+                        <button id="btn-diy" class="btn-diy" onclick="toggleManualPanel()">自己装</button>
+                    </div>
                     <div id="asset-move-result" class="asset-sub" style="margin-top:4px; margin-bottom:6px;"></div>
                     <div id="asset-broker-panel">
                         <div class="asset-sub" style="margin-bottom:6px;">写你的风格主题（严格保持原始房间结构，只改变视觉风格）</div>
@@ -832,17 +848,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="asset-toolbar">
-                    <input id="asset-search" placeholder="搜索资产名（如 desk / sofa / star）" oninput="renderAssetDrawerList()" />
-                </div>
-                <div id="asset-list"></div>
-                <div id="asset-upload-panel">
-                    <input id="asset-upload-file" type="file" accept="image/*" style="display:none;" />
-                    <div class="asset-toolbar" style="margin-top:0; margin-bottom:6px; gap:8px;">
-                        <button id="asset-choose-btn" onclick="openInlineAssetUploader()">上传替换素材</button>
-                        <button id="asset-commit-refresh-btn" onclick="commitAndRefresh()" disabled style="opacity:.55;">确认并刷新</button>
+                <div id="asset-manual-panel">
+                    <div class="asset-toolbar">
+                        <input id="asset-search" placeholder="搜索资产名（如 desk / sofa / star）" oninput="renderAssetDrawerList()" />
                     </div>
-                    <div id="asset-upload-result" class="asset-sub"></div>
+                    <div id="asset-list"></div>
+                    <div id="asset-upload-panel">
+                        <input id="asset-upload-file" type="file" accept="image/*" style="display:none;" />
+                        <div class="asset-toolbar" style="margin-top:0; margin-bottom:6px; gap:8px;">
+                            <button id="asset-choose-btn" onclick="openInlineAssetUploader()">上传替换素材</button>
+                            <button id="asset-commit-refresh-btn" onclick="commitAndRefresh()" disabled style="opacity:.55;">确认并刷新</button>
+                        </div>
+                        <div id="asset-upload-result" class="asset-sub"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -872,7 +890,7 @@
                 btnIdle: '待命', btnWork: '工作', btnSync: '同步', btnError: '报警', btnDecor: '装修房间',
                 drawerTitle: '装修房间 · 资产侧边栏', drawerClose: '关闭',
                 authTitle: '请输入装修验证码', authPlaceholder: '输入验证码', authVerify: '验证',
-                btnMove: '🏠搬新家', btnHome: '🐚回老家', btnBroker: '找中介', btnBrokerGo: '听中介的',
+                btnMove: '🏠搬新家', btnHome: '🐚回老家', btnBroker: '找中介', btnDIY: '自己装', btnBrokerGo: '听中介的',
                 brokerHint: '你会给龙虾推荐什么样的房子',
                 brokerPromptPh: '例如：故宫主题、莫奈风格、地牢主题、兵马俑主题……',
                 brokerNeedPrompt: '请先输入中介方案描述',
@@ -895,7 +913,7 @@
                 btnIdle: 'Idle', btnWork: 'Work', btnSync: 'Sync', btnError: 'Alert', btnDecor: 'Decorate Room',
                 drawerTitle: 'Decorate Room · Asset Sidebar', drawerClose: 'Close',
                 authTitle: 'Enter Decor Passcode', authPlaceholder: 'Enter passcode', authVerify: 'Verify',
-                btnMove: '🏠 New Home', btnHome: '🐚 Go Home', btnBroker: 'Broker', btnBrokerGo: 'Follow Broker',
+                btnMove: '🏠 New Home', btnHome: '🐚 Go Home', btnBroker: 'Broker', btnDIY: 'DIY', btnBrokerGo: 'Follow Broker',
                 brokerHint: 'What kind of house would you recommend for Lobster?',
                 brokerPromptPh: 'e.g. Forbidden City theme, Monet style, dungeon theme, Terracotta Warriors theme...',
                 brokerNeedPrompt: 'Please enter broker style prompt first',
@@ -918,7 +936,7 @@
                 btnIdle: '待機', btnWork: '作業', btnSync: '同期', btnError: '警報', btnDecor: '部屋を編集',
                 drawerTitle: '部屋編集・アセットサイドバー', drawerClose: '閉じる',
                 authTitle: '編集パスコードを入力', authPlaceholder: 'パスコード入力', authVerify: '認証',
-                btnMove: '🏠引っ越し', btnHome: '🐚実家に戻る', btnBroker: '仲介', btnBrokerGo: '仲介に任せる',
+                btnMove: '🏠引っ越し', btnHome: '🐚実家に戻る', btnBroker: '仲介', btnDIY: '自分で装飾', btnBrokerGo: '仲介に任せる',
                 brokerHint: 'ロブスターにはどんな家をおすすめしますか',
                 brokerPromptPh: '例：故宮テーマ、モネ風、ダンジョン風、兵馬俑テーマ…',
                 brokerNeedPrompt: '先に仲介プランの説明を入力してください',
@@ -992,6 +1010,7 @@
             setText('btn-move-house', 'btnMove');
             setText('btn-back-home', 'btnHome');
             const brokerBtn = document.querySelector('#asset-broker-row .btn-broker'); if (brokerBtn) brokerBtn.textContent = t('btnBroker');
+            const diyBtn = document.querySelector('#asset-manual-row .btn-diy'); if (diyBtn) diyBtn.textContent = t('btnDIY');
             const brokerHint = document.querySelector('#asset-broker-panel .asset-sub'); if (brokerHint) brokerHint.textContent = t('brokerHint');
             const brokerPrompt = document.getElementById('asset-broker-prompt'); if (brokerPrompt) brokerPrompt.placeholder = t('brokerPromptPh');
             const brokerGoBtn = document.querySelector('#asset-broker-actions button'); if (brokerGoBtn) brokerGoBtn.textContent = t('btnBrokerGo');
@@ -1201,6 +1220,7 @@
         let currentOfficeBgTextureKey = 'office_bg';
         let assetDrawerOpen = false;
         let assetDrawerAuthed = false;
+        let assetManualPanelOpen = false;
         let assetFilterMode = 'all';
         let assetListData = [];
         let sceneAssetItems = [];
@@ -1273,6 +1293,13 @@
             if (!gate || !main) return;
             gate.style.display = assetDrawerAuthed ? 'none' : 'block';
             main.style.display = assetDrawerAuthed ? 'block' : 'none';
+            updateManualPanelUI();
+        }
+
+        function updateManualPanelUI() {
+            const panel = document.getElementById('asset-manual-panel');
+            if (!panel) return;
+            panel.classList.toggle('open', !!assetManualPanelOpen && !!assetDrawerAuthed);
         }
 
         async function unlockAssetDrawer() {
@@ -2166,6 +2193,13 @@ function toggleBrokerPanel() {
             p.classList.toggle('open');
         }
 
+        function toggleManualPanel() {
+            const btn = document.querySelector('#asset-manual-row .btn-diy');
+            flashButtonActive(btn);
+            assetManualPanelOpen = !assetManualPanelOpen;
+            updateManualPanelUI();
+        }
+
         function placeOverlayAndStatusAtCanvasBottomLeft() {
             const canvasEl = game?.canvas || document.querySelector('#game-container canvas');
             const fallbackBox = document.getElementById('game-container');
@@ -2494,6 +2528,7 @@ function toggleBrokerPanel() {
             drawer.classList.toggle('open', next);
             document.body.classList.toggle('drawer-open', next);
             if (next) {
+                assetManualPanelOpen = false;
                 updateAssetAuthUI();
                 bindAssetDrawerBackgroundDeselect();
                 await ensureGeminiConfigLoaded();
@@ -2502,6 +2537,8 @@ function toggleBrokerPanel() {
                     bindDrawerFileMeta();
                 }
             } else {
+                assetManualPanelOpen = false;
+                updateManualPanelUI();
                 clearAssetSelectionUI();
             }
         }
